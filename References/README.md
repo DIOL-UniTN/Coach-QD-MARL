@@ -1,6 +1,7 @@
 ---
 title: "References"
 bibliography: biblio.bib
+nocite: '@*'
 link-citations: true
 ---
 
@@ -9,5 +10,5 @@ In here is posssible to visit a comprehensive list of references used to develop
 
 ## Paper list
 
-@Cully_2018
-@Nilsson_2021
+[@Cully_2018]
+[@Nilsson_2021]
