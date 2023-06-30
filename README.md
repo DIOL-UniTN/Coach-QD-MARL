@@ -1,4 +1,4 @@
-# MultiAgent_and_QualityDiversity_ReinforcementLearning
+# MultiAgent and QualityDiversity ReinforcementLearning
 This repository contains all the main informations about the university and thesis project on Multi Agent Reinforcemnt Learning and Quality Diversity.
 
 ## Papers and References
