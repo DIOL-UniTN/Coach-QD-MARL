@@ -22,5 +22,7 @@ The papers reviewed have a check symbol :bulb: and :x: with a comment to have a 
 - [Shared Experience Actor-Critic for Multi-Agent Reinforcement Learning](https://proceedings.neurips.cc/paper_files/paper/2020/file/7967cc8e3ab559e68cc944c44b1cf3e8-Paper.pdf), Christianos, Filippos and Sch\"{a}fer, Lukas and Albrecht, Stefano. :bulb: example of environments
 
 ## Environments
-### Petting Zoo List
+### Petting Zoo Farama List
 - [Pursuit](https://pettingzoo.farama.org/environments/sisl/pursuit/)
+
+### Petting Zoo ML
