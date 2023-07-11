@@ -20,6 +20,7 @@ The papers reviewed have a check symbol :bulb: and :x: with a comment to have a 
 - [Flatland-RL : Multi-Agent Reinforcement Learning on Trains](https://arxiv.org/abs/2012.05893), Sharada Mohanty and Erik Nygren and Florian Laurent and Manuel Schneider and Christian Scheller and Nilabha Bhattacharya and Jeremy Watson and Adrian Egli and Christian Eichenberger and Christian Baumberger and Gereon Vienken and Irene Sturm and Guillaume Sartoretti and Giacomo Spigler
 - [Flatland-RL Documentation](https://flatland.aicrowd.com/getting-started/env.html). :bulb: environment API
 - [Shared Experience Actor-Critic for Multi-Agent Reinforcement Learning](https://proceedings.neurips.cc/paper_files/paper/2020/file/7967cc8e3ab559e68cc944c44b1cf3e8-Paper.pdf), Christianos, Filippos and Sch\"{a}fer, Lukas and Albrecht, Stefano. :bulb: example of environments
+- [Melting Pot 2.0](https://arxiv.org/abs/2211.13746), John P. Agapiou and Alexander Sasha Vezhnevets and Edgar A. Duéñez-Guzmán and Jayd Matyas and Yiran Mao and Peter Sunehag and Raphael Köster and Udari Madhushani and Kavya Kopparapu and Ramona Comanescu and DJ Strouse and Michael B. Johanson and Sukhdeep Singh and Julia Haas and Igor Mordatch and Dean Mobbs and Joel Z. Leibo
 
 ## Environments
 ### Farama
