@@ -22,9 +22,15 @@ The papers reviewed have a check symbol :bulb: and :x: with a comment to have a 
 - [Shared Experience Actor-Critic for Multi-Agent Reinforcement Learning](https://proceedings.neurips.cc/paper_files/paper/2020/file/7967cc8e3ab559e68cc944c44b1cf3e8-Paper.pdf), Christianos, Filippos and Sch\"{a}fer, Lukas and Albrecht, Stefano. :bulb: example of environments
 
 ## Environments
-### Petting Zoo 
-#### SISL
+### Farama
+#### Petting Zoo
+##### SISL
 - [Pursuit](https://pettingzoo.farama.org/environments/sisl/pursuit/)
 #### MAgent2
 - [Adversarial Pursuit](https://magent2.farama.org/environments/adversarial_pursuit/)
 - [Battle](https://magent2.farama.org/environments/battle/)
+- [Combined Arms](https://magent2.farama.org/environments/combined_arms/)
+### Deep Mind
+#### Melting Pot
+It is an environment developed by Deep Mind with different Multi Agents Retro-Games, Shimmy Documentation provide compatibility with PettingZoo
+- [Melting Pot](https://shimmy.farama.org/environments/meltingpot/), Farama Documentation
