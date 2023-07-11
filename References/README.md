@@ -36,3 +36,4 @@ The papers reviewed have a check symbol :bulb: and :x: with a comment to have a 
 It is an environment developed by Deep Mind with different Multi Agents Retro-Games, Shimmy Documentation provide compatibility with PettingZoo
 - [Melting Pot](https://shimmy.farama.org/environments/meltingpot/), Farama Documentation
 - [Melting Pot, repo](https://github.com/deepmind/meltingpot), Deep Mind Repository
+- [Melting Pot, Scenarios Substrate (environments/games)](https://github.com/deepmind/meltingpot/blob/main/docs/substrate_scenario_details.md)
