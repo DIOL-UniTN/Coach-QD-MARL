@@ -18,9 +18,9 @@ The papers reviewed have a check symbol :bulb: and :x: with a comment to have a 
 - [PettingZoo: Gym for Multi-Agent Reinforcement Learning](https://proceedings.neurips.cc/paper_files/paper/2021/file/7ed2d3454c5eea71148b11d0c25104ff-Paper.pdf), Terry, J and Black, Benjamin and Grammel, Nathaniel and Jayakumar, Mario  and Hari, Ananth  and Sullivan, Ryan and Santos, Luis S and Dieffendahl, Clemens and Horsch, Caroline and Perez-Vicente, Rodrigo and Williams, Niall  and Lokesh, Yashas  and Ravi , Praveen 
 - [Scalable Evaluation of Multi-Agent Reinforcement Learning with Melting Pot](http://proceedings.mlr.press/v139/leibo21a/leibo21a.pdf), Leibo, Joel Z and Due{\~n}ez-Guzman, Edgar A and Vezhnevets, Alexander and Agapiou, John P and Sunehag, Peter and Koster, Raphael and Matyas, Jayd and Beattie, Charlie and Mordatch, Igor and Graepel, Thore. :bulb: good explanation of how MARL/MAPLA works on envirotnments, :bulb: environment developed by Deep Mind, compatiblity with Petting Zoo via Shimmy.
 - [Flatland-RL : Multi-Agent Reinforcement Learning on Trains](https://arxiv.org/abs/2012.05893), Sharada Mohanty and Erik Nygren and Florian Laurent and Manuel Schneider and Christian Scheller and Nilabha Bhattacharya and Jeremy Watson and Adrian Egli and Christian Eichenberger and Christian Baumberger and Gereon Vienken and Irene Sturm and Guillaume Sartoretti and Giacomo Spigler
-- [Flatland-RL Documentation](https://flatland.aicrowd.com/getting-started/env.html). :bulb: environment API
+- [Flatland-RL Documentation](https://flatland.aicrowd.com/getting-started/env.html). :bulb: environment API on Multi Agent applied to Rail roads.
 - [Shared Experience Actor-Critic for Multi-Agent Reinforcement Learning](https://proceedings.neurips.cc/paper_files/paper/2020/file/7967cc8e3ab559e68cc944c44b1cf3e8-Paper.pdf), Christianos, Filippos and Sch\"{a}fer, Lukas and Albrecht, Stefano. :bulb: example of environments
-- [Melting Pot 2.0](https://arxiv.org/abs/2211.13746), John P. Agapiou and Alexander Sasha Vezhnevets and Edgar A. Duéñez-Guzmán and Jayd Matyas and Yiran Mao and Peter Sunehag and Raphael Köster and Udari Madhushani and Kavya Kopparapu and Ramona Comanescu and DJ Strouse and Michael B. Johanson and Sukhdeep Singh and Julia Haas and Igor Mordatch and Dean Mobbs and Joel Z. Leibo
+- [Melting Pot 2.0](https://arxiv.org/abs/2211.13746), John P. Agapiou and Alexander Sasha Vezhnevets and Edgar A. Duéñez-Guzmán and Jayd Matyas and Yiran Mao and Peter Sunehag and Raphael Köster and Udari Madhushani and Kavya Kopparapu and Ramona Comanescu and DJ Strouse and Michael B. Johanson and Sukhdeep Singh and Julia Haas and Igor Mordatch and Dean Mobbs and Joel Z. Leibo :bulb: Tech Report about Melting Pot
 
 ## Environments
 ### Farama
@@ -36,4 +36,4 @@ The papers reviewed have a check symbol :bulb: and :x: with a comment to have a 
 It is an environment developed by Deep Mind with different Multi Agents Retro-Games, Shimmy Documentation provide compatibility with PettingZoo
 - [Melting Pot](https://shimmy.farama.org/environments/meltingpot/), Farama Documentation
 - [Melting Pot, repo](https://github.com/deepmind/meltingpot), Deep Mind Repository
-- [Melting Pot, Scenarios Substrate (environments/games)](https://github.com/deepmind/meltingpot/blob/main/docs/substrate_scenario_details.md)
+- [Melting Pot, Scenarios Substrate (environments/games)](https://github.com/deepmind/meltingpot/blob/main/docs/substrate_scenario_details.md), :bulb: all Melting substrate explained
