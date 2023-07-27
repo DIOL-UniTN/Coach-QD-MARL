@@ -21,6 +21,7 @@ The papers reviewed have a check symbol :bulb: and :x: with a comment to have a 
 - [Flatland-RL Documentation](https://flatland.aicrowd.com/getting-started/env.html). :bulb: environment API on Multi Agent applied to Rail roads.
 - [Shared Experience Actor-Critic for Multi-Agent Reinforcement Learning](https://proceedings.neurips.cc/paper_files/paper/2020/file/7967cc8e3ab559e68cc944c44b1cf3e8-Paper.pdf), Christianos, Filippos and Sch\"{a}fer, Lukas and Albrecht, Stefano. :bulb: example of environments
 - [Melting Pot 2.0](https://arxiv.org/abs/2211.13746), John P. Agapiou and Alexander Sasha Vezhnevets and Edgar A. Duéñez-Guzmán and Jayd Matyas and Yiran Mao and Peter Sunehag and Raphael Köster and Udari Madhushani and Kavya Kopparapu and Ramona Comanescu and DJ Strouse and Michael B. Johanson and Sukhdeep Singh and Julia Haas and Igor Mordatch and Dean Mobbs and Joel Z. Leibo :bulb: Tech Report about Melting Pot
+- [OpenSpiel](https://arxiv.org/abs/1908.09453), Marc Lanctot, Edward Lockhart, Jean-Baptiste Lespiau, Vinicius Zambaldi, Satyaki Upadhyay, Julien Pérolat, Sriram Srinivasan, Finbarr Timbers, Karl Tuyls, Shayegan Omidshafiei, Daniel Hennes, Dustin Morrill, Paul Muller, Timo Ewalds, Ryan Faulkner, János Kramár, Bart De Vylder, Brennan Saeta, James Bradbury, David Ding, Sebastian Borgeaud, Matthew Lai, Julian Schrittwieser, Thomas Anthony, Edward Hughes, Ivo Danihelka, Jonah Ryan-Davis. :bulb: environment with some Multi Agent common board game 
 
 ## Environments
 ### Farama
@@ -44,3 +45,4 @@ Shimmy provides compatibility with Petting Zoo environmet.
 - [OpenSpiel](https://shimmy.farama.org/environments/open_spiel/)
 - [OpenSpiel, repo](https://shimmy.farama.org/environments/open_spiel/)
 - [OpenSpiel, developed games](https://github.com/deepmind/open_spiel/blob/master/docs/games.md)
+- [OpenSpiel, paper](https://arxiv.org/pdf/1908.09453.pdf)
