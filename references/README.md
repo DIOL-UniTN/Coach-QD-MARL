@@ -37,3 +37,10 @@ It is an environment developed by Deep Mind with different Multi Agents Retro-Ga
 - [Melting Pot](https://shimmy.farama.org/environments/meltingpot/), Farama Documentation
 - [Melting Pot, repo](https://github.com/deepmind/meltingpot), Deep Mind Repository
 - [Melting Pot, Scenarios Substrate (environments/games)](https://github.com/deepmind/meltingpot/blob/main/docs/substrate_scenario_details.md), :bulb: all Melting substrate explained
+
+#### OpenSpiel
+It is an enviroment which collect different board games, card games, as well as simple grid worlds and social dilemmas. It has both single agent and multi agents an they provide the following characteristics:  zero-sum, cooperative and general-sum, one-shot and sequential, strictly turn-taking and simultaneous-move, perfect and imperfect information games.
+Shimmy provides compatibility with Petting Zoo environmet.
+- [OpenSpiel](https://shimmy.farama.org/environments/open_spiel/)
+- [OpenSpiel, repo](https://shimmy.farama.org/environments/open_spiel/)
+- [OpenSpiel, developed games](https://github.com/deepmind/open_spiel/blob/master/docs/games.md)
