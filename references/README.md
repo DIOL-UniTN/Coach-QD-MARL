@@ -28,6 +28,9 @@ The core topics are Evolutionaty Algorithms and Quality Diversity on Multi-Agent
 - [Shared Experience Actor-Critic for Multi-Agent Reinforcement Learning](https://proceedings.neurips.cc/paper_files/paper/2020/file/7967cc8e3ab559e68cc944c44b1cf3e8-Paper.pdf), Christianos, Filippos and Sch\"{a}fer, Lukas and Albrecht, Stefano. :bulb: example of environments
 - [Melting Pot 2.0](https://arxiv.org/abs/2211.13746), John P. Agapiou and Alexander Sasha Vezhnevets and Edgar A. Duéñez-Guzmán and Jayd Matyas and Yiran Mao and Peter Sunehag and Raphael Köster and Udari Madhushani and Kavya Kopparapu and Ramona Comanescu and DJ Strouse and Michael B. Johanson and Sukhdeep Singh and Julia Haas and Igor Mordatch and Dean Mobbs and Joel Z. Leibo :bulb: Tech Report about Melting Pot
 - [OpenSpiel](https://arxiv.org/abs/1908.09453), Marc Lanctot, Edward Lockhart, Jean-Baptiste Lespiau, Vinicius Zambaldi, Satyaki Upadhyay, Julien Pérolat, Sriram Srinivasan, Finbarr Timbers, Karl Tuyls, Shayegan Omidshafiei, Daniel Hennes, Dustin Morrill, Paul Muller, Timo Ewalds, Ryan Faulkner, János Kramár, Bart De Vylder, Brennan Saeta, James Bradbury, David Ding, Sebastian Borgeaud, Matthew Lai, Julian Schrittwieser, Thomas Anthony, Edward Hughes, Ivo Danihelka, Jonah Ryan-Davis. :bulb: environment with some Multi Agent common board game 
+- [Novelty Seeking Multiagent Evolutionary Reinforcement Learning](https://dl.acm.org/doi/pdf/10.1145/3583131.3590428), Ayhan Alp Aydeniz, Robert Loftin, Kagan Tumer.
+- [Quality-diversity in dissimilarity spaces](https://dl.acm.org/doi/pdf/10.1145/3583131.3590409), Steve Huntsman.
+- [Bayesian Quality Diversity Search with Interactive Illumination](https://dl.acm.org/doi/pdf/10.1145/3583131.3590486), Paul Kent, Juergen Branke.
 
 ## Environments
 ### Farama
