@@ -6,8 +6,8 @@ The papers reviewed have a check symbol :bulb: and :x: with a comment to have a 
 ## Core Papers
 Here are listed the papers form which the studies and the project are starting from, the papers are pubblieshed by Giovanni Iacca, Leonardo Lucio Custone and Andrea Ferigo.
 The core topics are Evolutionaty Algorithms and Quality Diversity on Multi-Agent Reinforcent Learning tasks.
-- []()
-- []()
+- [A Population-Based Approach for Multi-Agent Interpretable Reinforcement Learning](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4467882)
+- [Quality Diversity Evolutionary Learning of Decision Trees](https://arxiv.org/abs/2208.12758)
 
 ## Paper list 
 - [Quality and Diversity Optimization: A Unifying Modular Framework](https://doi.org/10.1109%2Ftevc.2017.2704781), Antoine Cully and Yiannis Demiris 
