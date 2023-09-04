@@ -9,3 +9,4 @@ In [references](/references) there is a comprehensive list of references of the 
 In [src](/src) are stored all the scripts developed during the project. The produced scripts work only if linked to the code developed in the following papers by Giovanni Iacca, Marco Crespi, Andrea Ferigo, Leonardo Lucio Custode:
 - [A Population-Based Approach for Multi-Agent Interpretable Reinforcement Learning](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4467882)
 - [Quality Diversity Evolutionary Learning of Decision Trees](https://arxiv.org/abs/2208.12758)
+It is possible to run the aforementioned code by following the instructions in the README.md file in the [src/base_scripts](/src/base_scripts/) folder.
