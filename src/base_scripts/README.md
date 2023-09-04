@@ -6,13 +6,13 @@ Then run:
 2. `chmod +x scripts.sh`
 3. `source scripts.sh`
 It will appear the following message:
-`Hello! Here you can set environment and run codes\n`
-`Please enter an integer to select an option:`
-`[1]. Activate environment`
-`[2]. Deactivate environment`
-`[3]. Run code dts4marl`
-`[4]. Run code marldts`
-`[5]. Exit`
+```Hello! Here you can set environment and run codes
+Please enter an integer to select an option:
+[1]. Activate environment
+[2]. Deactivate environment
+[3]. Run code dts4marl
+[4]. Run code marldts
+[5]. Exit```
 4. activate virtual-env by pressing 1
 5. run `./scripts.sh` again
 6. run code by pressing 3 or 4
