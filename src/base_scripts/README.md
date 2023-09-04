@@ -6,7 +6,7 @@ Then run:
 2. `chmod +x scripts.sh`
 3. `source scripts.sh`
 It will appear the following message:
-`Hello! Here you can set environment and run codes`
+`Hello! Here you can set environment and run codes\n`
 `Please enter an integer to select an option:`
 `[1]. Activate environment`
 `[2]. Deactivate environment`
