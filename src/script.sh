@@ -19,16 +19,16 @@ then
 elif [ $option -eq 3 ]
 then
     echo "Running code..."
-    python3 src/base/dts4marl/launcher.py src/base/dts4marl/battlefield.json 4
+    python3 base/dts4marl/launcher.py base/dts4marl/battlefield.json 4
 
 elif [ $option -eq 4 ]
 then
     echo "Running code..."
-    python3 src/base/marl_dts/src/experiment_launchers/pz_advpursuit_reduced_obs_shared_launcher.py src/base/marl_dts/src/configs/magent_advpursuit_single_team.json 1
+    python3 base/marl_dts/src/experiment_launchers/pz_advpursuit_reduced_obs_shared_launcher.py base/marl_dts/src/configs/magent_advpursuit_single_team.json 1
 elif [ $option -eq 5 ]
 then
     echo "Running code..."
-    python3 src/QD_MARL/marl_qd_launcher.py src/QD_MARL/configs/battlefield.json 4
+    python3 QD_MARL/marl_qd_launcher.py QD_MARL/configs/battlefield.json 4
 
 elif [ $option -eq 6 ]
 then
