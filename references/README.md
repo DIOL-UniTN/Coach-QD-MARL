@@ -31,6 +31,8 @@ The core topics are Evolutionaty Algorithms and Quality Diversity on Multi-Agent
 - [Novelty Seeking Multiagent Evolutionary Reinforcement Learning](https://dl.acm.org/doi/pdf/10.1145/3583131.3590428), Ayhan Alp Aydeniz, Robert Loftin, Kagan Tumer.
 - [Quality-diversity in dissimilarity spaces](https://dl.acm.org/doi/pdf/10.1145/3583131.3590409), Steve Huntsman.
 - [Bayesian Quality Diversity Search with Interactive Illumination](https://dl.acm.org/doi/pdf/10.1145/3583131.3590486), Paul Kent, Juergen Branke.
+- [Quality-Diversity Optimization with MAP-Elites and Surrogate Models](https://dl.acm.org/doi/pdf/10.1145/3377930.3389813), Antoine Cully, Jeff Clune, Danesh Tarapore, Jean-Baptiste Mouret.
+- [Interpretable pipelines with evolutionarily optimized modules for reinforcement learning tasks with visual inputs](https://arxiv.org/pdf/2202.04943.pdf)
 
 ## Environments
 ### Farama

@@ -1,0 +1,111 @@
+{
+    "grammar": {
+        "root": ["condition", "leaf"],
+        "input_index": {
+            "start": 0,
+            "stop": 34,
+            "step": 1,
+            "dtype": "int"
+        },
+        "float": {
+            "start": 0.1,
+            "stop": 1,
+            "step": 0.1,
+            "dtype": "float"
+        }
+    },
+    "conditions": {
+        "type": "orthogonal"
+    },
+    "leaves": {
+        "params": {
+            "n_actions": 21,
+            "learning_rate": null
+        },
+        "decorators": [
+            [
+                "RandomInit",
+                {
+                    "low": -1,
+                    "high": 1
+                }
+
+            ],
+            [
+                "EpsilonGreedy",
+                {
+                    "epsilon": 1,
+                    "decay": 0.99,
+                    "min_epsilon": 0.05
+                }
+            ],
+            [
+                "NoBuffers",
+                {}
+            ]
+        ]
+    },
+    "environment": {
+    	"map_size": 80,
+    	"minimap_mode": true,
+    	"step_reward": -0.005,
+    	"dead_penalty": -0.1,
+    	"attack_penalty": -0.1,
+    	"attack_opponent_reward": 0.9,
+    	"max_cycles": 500,
+    	"extra_features": false
+    },
+    "training": {
+        "gamma": 0.9,
+        "episodes": 400,
+        "jobs": 12,
+        "generations": 40
+    },
+    "statistics": {
+        "agent": {
+            "type": "quantile",
+            "params": {"q": 0.7, "method": "midpoint"}
+        },
+        "set": {
+            "type": "mean",
+            "params": {}
+        }
+    },
+    "sets": "random",
+    "team_to_optimize": "blue",
+    "observation": "34_new",
+    "manual_policy": null,
+    "ge": {
+        "pop_size": 60,
+        "agents": 12,
+        "sets": 1,
+        "no_mig": true,
+        "individual_genes_injected": [0,22,3,0,23,3,0,5,4,0,24,3,0,7,4,0,25,3,0,8,4,1,0,10,4,0,30,5,1,0,20,2,1,1,1,0,32,5,1,0,21,2,1,1,1,0,29,5,1,0,18,2,1,1,1,0,27,5,1,0,17,2,1,1,1],
+        "injection_rate": 0.05,
+        "mutation": {
+            "type": "UniformMutator",
+            "params": {
+                "gene_probability": 0.05,
+                "max_value": 10000
+            }
+        },
+        "crossover": {
+            "type": "OnePointCrossover",
+            "params": {}
+        },
+        "selection": {
+            "type": "TournamentSelection",
+            "params": {
+                "tournament_size": 3
+            }
+        },
+        "replacement": {
+            "type": "ReplaceWithOldIfWorse",
+            "params": {}
+        },
+        "mut_prob": 0.8,
+        "cx_prob": 0.4,
+        "genotype_length": 500,
+        "max_int": 10000
+    }
+}
