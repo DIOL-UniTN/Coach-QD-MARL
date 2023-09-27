@@ -10,4 +10,4 @@ In [src](/src) are stored all the scripts developed during the project. The prod
 - [A Population-Based Approach for Multi-Agent Interpretable Reinforcement Learning](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4467882)
 - [Quality Diversity Evolutionary Learning of Decision Trees](https://arxiv.org/abs/2208.12758)
 
-It is possible to run the aforementioned code by following the instructions in the README.md file in the [src/base_scripts](/src/base_scripts/) folder.
+It is possible to run the aforementioned code by following the instructions in the README.md file in the [src/base](/src/base/) folder.
