@@ -2,7 +2,7 @@
 This instructions are for running the code developed by Leonardo Lucio Custode, Andrea Ferigo and Giovanni Iacca, which is the starting point of the main project.
 First of all, by activating the virtual-env the necessary dependencies are already installed.
 Then run:
-1. `cd src/base_scripts`
+1. `cd src/base/`
 2. `chmod +x scripts.sh`
 3. `source scripts.sh`
 
