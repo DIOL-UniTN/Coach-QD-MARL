@@ -15,6 +15,9 @@ Otherwise by changing the working direcotry `cd src` and running the following c
 ```bash
 chmod +x script.sh
 source script.sh
+```
+It will appear the following menu:
+```bash
 On the terminal output will appear the following menu:
 Hello! Here you can set environment and run codes
 Please enter an integer to select an option:
