@@ -15,16 +15,16 @@ Otherwise by changing the working direcotry `cd src` and running the following c
 `chmod +x script.sh`
 `source script.sh`
 On the terminal output will appear the following menu:
-`Hello! Here you can set environment and run codes`
-`Please enter an integer to select an option:`
-`[1]. Activate environment`
-`[2]. Deactivate environment`
-`[3]. Run code dts4marl`
-`[4]. Run code marldts`
-`[5]. Run code qd_marl`
-`[6]. Run code qd_marl in debug mode`
-`[7]. Run test environment`
-`[8]. Exit`
+`Hello! Here you can set environment and run codes
+Please enter an integer to select an option:`
+[1]. Activate environment
+[2]. Deactivate environment
+[3]. Run code dts4marl
+[4]. Run code marldts
+[5]. Run code qd_marl
+[6]. Run code qd_marl in debug mode
+[7]. Run test environment
+[8]. Exit`
 Press 1 to activate the python venv.
 Then run `./script.sh` again and select one of the possible experiment.
 If 3 or 4 is selected it will run the projects developed by Giovanni Iacca, Marco Crespi, Andrea Ferigo, Leonardo Lucio Custode.
