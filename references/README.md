@@ -35,6 +35,8 @@ The core topics are Evolutionaty Algorithms and Quality Diversity on Multi-Agent
 - [Interpretable pipelines with evolutionarily optimized modules for reinforcement learning tasks with visual inputs](https://arxiv.org/pdf/2202.04943.pdf)
 - [pyribs: A Bare-Bones Python Library for Quality Diversity Optimization](https://arxiv.org/pdf/2303.00191.pdf), Bryon Tjanaka, Matthew C. Fontaine, David H. Lee, Yulun Zhang, Nivedit Reddy Balam, Nathaniel Dennler, Sujay S. Garlanka, Nikitas Dimitri Klapsis, Stefanos Nikolaidis.
 - [Coach-Player Multi-Agent Reinforcement Learning for Dynamic Team Composition](http://proceedings.mlr.press/v139/liu21m/liu21m.pdf), Bo Liu, Qiang Liu, Peter Stone, Animesh Garg, Yuke Zhu, Animashree Anandkumar- :bulb: example of how to menage a coach agent to train/select a team of agents.
+- [Mix-ME: Quality-Diversity for Multi-Agent Learning](https://arxiv.org/pdf/2311.01829.pdf), Garðar Ingvarsson1 Mikayel Samvelyan1 Bryan Lim2 Manon Flageat2
+Antoine Cully2 Tim Rocktäschel1. :bulb: great idea on how to select elites from me
 
 ## Environments
 ### Farama
