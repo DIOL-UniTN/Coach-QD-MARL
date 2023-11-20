@@ -12,11 +12,12 @@ In [src](/src) are stored all the scripts developed during the project. The prod
 
 It is possible to run the aforementioned code by following the instructions in the README.md file in the [src/base](/src/base/) folder.
 Otherwise by changing the working direcotry `cd src` and running the following command:
-`chmod +x script.sh`
-`source script.sh`
+```shell
+chmod +x script.sh
+source script.sh
 On the terminal output will appear the following menu:
-`Hello! Here you can set environment and run codes
-Please enter an integer to select an option:`
+Hello! Here you can set environment and run codes
+Please enter an integer to select an option:
 [1]. Activate environment
 [2]. Deactivate environment
 [3]. Run code dts4marl
@@ -24,7 +25,8 @@ Please enter an integer to select an option:`
 [5]. Run code qd_marl
 [6]. Run code qd_marl in debug mode
 [7]. Run test environment
-[8]. Exit`
+[8]. Exit
+```
 Press 1 to activate the python venv.
 Then run `./script.sh` again and select one of the possible experiment.
 If 3 or 4 is selected it will run the projects developed by Giovanni Iacca, Marco Crespi, Andrea Ferigo, Leonardo Lucio Custode.
