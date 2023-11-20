@@ -12,7 +12,7 @@ In [src](/src) are stored all the scripts developed during the project. The prod
 
 It is possible to run the aforementioned code by following the instructions in the README.md file in the [src/base](/src/base/) folder.
 Otherwise by changing the working direcotry `cd src` and running the following command:
-```shell
+```bash
 chmod +x script.sh
 source script.sh
 On the terminal output will appear the following menu:
@@ -23,7 +23,7 @@ Please enter an integer to select an option:
 [3]. Run code dts4marl
 [4]. Run code marldts
 [5]. Run code qd_marl
-[6]. Run code qd_marl in debug mode
+[6]. Run code qd_marl with debug mode
 [7]. Run test environment
 [8]. Exit
 ```
