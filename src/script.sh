@@ -6,7 +6,9 @@ echo "[2]. Deactivate environment"
 echo "[3]. Run code dts4marl"
 echo "[4]. Run code marldts"
 echo "[5]. Run code qd_marl"
-echo "[6]. Exit"
+echo "[6]. Run code qd_marl in debug mode"
+echo "[7]. Run test environment"
+echo "[8]. Exit"
 read option
 if [ $option -eq 1 ]
 then
@@ -29,8 +31,15 @@ elif [ $option -eq 5 ]
 then
     echo "Running code..."
     python3 QD_MARL/marl_qd_launcher.py QD_MARL/configs/battlefield.json 4
-
 elif [ $option -eq 6 ]
+then
+    echo "Running code in DEBUG MODE..."
+    python3 QD_MARL/marl_qd_launcher.py QD_MARL/configs/battlefield.json 4 --debug
+elif [ $option -eq 7 ]
+then
+    echo "Running test environment..."
+    python3 QD_MARL/test_environments.py QD_MARL/configs/battlefield.json  4 
+elif [ $option -eq 8 ]
 then
     echo "Exiting..."
     exit

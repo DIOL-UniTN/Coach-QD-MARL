@@ -6,13 +6,13 @@ Author: Leonardo Lucio Custode
 Creation Date: 04-04-2020
 Last modified: mer 6 mag 2020, 16:30:41
 """
-import re
 import os
+import re
 import string
-import numpy as np
-from typing import List
 from abc import abstractmethod
+from typing import List
 
+import numpy as np
 
 TAB = " " * 4
 
@@ -376,7 +376,7 @@ class ReplaceWithOldIfWorse(Replacement):
 class GrammaticalEvolution:
     """A class that implements grammatical evolution (Ryan et al. 1995)"""
 
-    def __init__(self, pop_size, mutation, crossover, selection, replacement, mut_prob, cx_prob, genotype_length, max_int=10000, logdir=None):
+    def __init__(self, pop_size, agents, sets, mutation, crossover, selection, replacement, mut_prob, cx_prob, genotype_length, max_int=10000, no_mig=False, individual_genes_injected=None, injection_rate = 0.0, logdir=None):
         """TODO: to be defined.
 
         :pop_size: the size of the population
@@ -390,30 +390,56 @@ class GrammaticalEvolution:
         :max_int: the biggest constant that can be contained in the genotype (so random number in the range [0, max_int] are generated)
 
         """
-        self._pop_size = pop_size
-        self._mutation = mutation
-        self._crossover = crossover
-        self._selection = selection
-        self._replacement = replacement
-        self._mut_prob = mut_prob
-        self._cx_prob = cx_prob
+        self._pop_size = pop_size # Pop dimension
+        self._agents = agents # Number of agents
+        self._sets = sets # Number of sets
+        self._mutation = mutation # Mutation operator
+        self._crossover = crossover # Crossover operator
+        self._selection = selection # Selection operator
+        self._replacement = replacement # Repalcement operator
+        self._mut_prob = mut_prob # Mutation probability
+        self._cx_prob = cx_prob # Crossover probability
+        self._no_mig = no_mig   # flag no migration
         self._genotype_length = genotype_length
-        self._individuals = []
+        self._individuals = [ [] for _ in range(self._sets)]
         self._max_int = max_int
-        self._logfile = os.path.join(logdir, "grammatical_evolution.log") if logdir is not None else None
+        self._individual_genes_injected = individual_genes_injected    # inject manual policy
+        self._injection_rate = injection_rate  # inject manual policy
+        self._logdir = logdir if logdir is not None else None
         self._init_pop()
-        self._old_individuals = []
-        self._updated = False  # To detect the first generation
+        if self._individual_genes_injected is not None:
+            self._inject_individual(self._individual_genes_injected, self._injection_rate)
+        self._old_individuals = [ [] for _ in range(self._sets)]
+        self._updated = [False for _ in range(self._sets)]  # To detect the first generation
 
     def _init_pop(self):
         """Initializes the population"""
-        for i in range(self._pop_size):
-            self._individuals.append(self._random_individual())
-            self._log("INIT", "Individual {}:\n{}".format(i, self._individuals[-1]))
+        for set_ in range(self._sets):
+            for j in range(self._pop_size):
+                self._individuals[set_].append(self._random_individual())
+                self._log(set_, "INIT", "Individual {}:\n{}".format(j, self._individuals[set_][-1]))
 
-    def _log(self, tag, string):
-        if self._logfile is not None:
-            with open(self._logfile, "a") as f:
+    def _inject_individual(self, individual_genes, injection_rate):
+        #assert len(individual_genes) == self._genotype_length, f"Manual individual genes lenght ({len(individual)}) is different from genotype_lenght ({self._genotype_lenght})."
+        
+        # Reshape the genes if necessary
+        if (len(individual_genes) < self._genotype_length):
+            # ones because one means leaf
+            individual_genes = np.hstack([individual_genes, np.ones(self._genotype_length - len(individual_genes), dtype=int)])
+        elif (len(individual_genes) > self._genotype_length):
+            individual_genes = individual_genes[:self._genotype_length]
+        
+        individue_to_inject = Individual(individual_genes, None, None) # Create the individual with the genes injeceted
+        for set_ in range(self._sets): # Inject the individual in each set with the same rate
+            indexes = np.random.choice(self._pop_size, int(self._pop_size * injection_rate), replace=False)  # Extract random indexes
+            for index in indexes:
+                self._log(set_, "INJ", f"Individual {self._individuals[set_][index]} has been replaced with injected {individue_to_inject}")
+                self._individuals[set_][index] = individue_to_inject.copy() # Replace selected individual with injected individual
+		
+
+    def _log(self, set_, tag, string): # CONTROLLARE CHE LA SCRITTURA AVVENGA CORRETTAMENTE
+        if self._logdir is not None:
+            with open(os.path.join(self._logdir, f"set_{set_}.log"), "a") as f:
                 f.write("[{}] {}\n".format(tag, string))
 
     def _random_individual(self):
@@ -422,67 +448,92 @@ class GrammaticalEvolution:
 
     def ask(self):
         """ Returns the current population """
-        self._old_individuals = self._individuals[:]
-        if self._updated:
-            self._individuals = []
-            _sorted_pop = [self._old_individuals[j].copy() for j in self._selection([i._fitness for i in self._old_individuals])]
+        for set_ in range(self._sets):
+            self._old_individuals[set_] = self._individuals[set_][:]
+            if self._updated[set_]:
+                self._individuals[set_] = []
+                _sorted_pop = [self._old_individuals[set_][j].copy() for j in self._selection([i._fitness for i in self._old_individuals[set_]])]
 
-            for s in _sorted_pop:
-                s._parents = None
+                for s in _sorted_pop:
+                    s._parents = None
 
-            for s in _sorted_pop:
-                s._parents = None
+                self._log(set_, "POPULATION", "Sorted population:\n" + "\n".join("Individual {}:\n{}".format(srt_idx, _sorted_pop[srt_idx]) for srt_idx in range(len(_sorted_pop))))
 
-            self._log("POPULATION", "Sorted population:\n" + "\n".join("Individual {}:\n{}".format(srt_idx, _sorted_pop[srt_idx]) for srt_idx in range(len(_sorted_pop))))
+                cx_random_numbers = np.random.uniform(0, 1, len(_sorted_pop)//2)
+                m_random_numbers = np.random.uniform(0, 1, len(_sorted_pop))
 
-            cx_random_numbers = np.random.uniform(0, 1, len(_sorted_pop)//2)
-            m_random_numbers = np.random.uniform(0, 1, len(_sorted_pop))
+                # Crossover
+                for index, cxp in enumerate(cx_random_numbers):
+                    ind1, ind2 = _sorted_pop[2 * index: 2 * index + 2]
+                    if cxp < self._cx_prob:
+                        self._log(set_, "CX", "cx happened between individual {} and {}".format(2 * index, 2 * index + 1))
+                        self._individuals[set_].extend(self._crossover(ind1, ind2))
+                        self._individuals[set_][-1]._parents = [ind1, ind2]
+                        self._individuals[set_][-2]._parents = [ind1, ind2]
+                        self._log(set_, "CX", "Individual {} has parents [{}, {}] (Fitness [{}, {}])".format(2 * index, 2 * index, 2 * index + 1, ind1._fitness, ind2._fitness))
+                        self._log(set_, "CX", "Individual {} has parents [{}, {}] (Fitness [{}, {}])".format(2 * index + 1, 2 * index, 2 * index + 1, ind1._fitness, ind2._fitness))
+                    else:
+                        self._log(set_, "CX", "cx did not happen between individual {} and {}".format(2 * index, 2 * index + 1))
+                        self._individuals[set_].extend([Individual(ind1._genes), Individual(ind2._genes)])
+                        self._individuals[set_][-1]._parents = [ind2]
+                        self._individuals[set_][-2]._parents = [ind1]
+                        self._log(set_, "CX", "Individual {} has parents [{}] (Fitness {})".format(2 * index, 2 * index, ind1._fitness))
+                        self._log(set_, "CX", "Individual {} has parents [{}] (Fitness {})".format(2 * index + 1, 2 * index + 1, ind2._fitness))
 
-            # Crossover
-            for index, cxp in enumerate(cx_random_numbers):
-                ind1, ind2 = _sorted_pop[2 * index: 2 * index + 2]
-                if cxp < self._cx_prob:
-                    self._log("CX", "cx happened between individual {} and {}".format(2 * index, 2 * index + 1))
-                    self._individuals.extend(self._crossover(ind1, ind2))
-                    self._individuals[-1]._parents = [ind1, ind2]
-                    self._individuals[-2]._parents = [ind1, ind2]
-                    self._log("CX", "Individual {} has parents [{}, {}] (Fitness [{}, {}])".format(2 * index, 2 * index, 2 * index + 1, ind1._fitness, ind2._fitness))
-                    self._log("CX", "Individual {} has parents [{}, {}] (Fitness [{}, {}])".format(2 * index + 1, 2 * index, 2 * index + 1, ind1._fitness, ind2._fitness))
-                else:
-                    self._log("CX", "cx did not happen between individual {} and {}".format(2 * index, 2 * index + 1))
-                    self._individuals.extend([Individual(ind1._genes), Individual(ind2._genes)])
-                    self._individuals[-1]._parents = [ind2]
-                    self._individuals[-2]._parents = [ind1]
-                    self._log("CX", "Individual {} has parents [{}] (Fitness {})".format(2 * index, 2 * index, ind1._fitness))
-                    self._log("CX", "Individual {} has parents [{}] (Fitness {})".format(2 * index + 1, 2 * index + 1, ind2._fitness))
+                if len(_sorted_pop) % 2 == 1:
+                    self._individuals[set_].append(_sorted_pop[-1])
+                    self._individuals[set_][-1]._parents = [_sorted_pop[-1]]
 
-            if len(_sorted_pop) % 2 == 1:
-                self._individuals.append(_sorted_pop[-1])
-                self._individuals[-1]._parents = [_sorted_pop[-1]]
+                # Mutation
+                for i, mp in enumerate(m_random_numbers):
+                    if mp < self._mut_prob:
+                        self._log(set_, "MUT", "Mutation occurred for individual {}".format(i))
+                    self._individuals[set_][i] = self._mutation(self._individuals[set_][i])
+                self._old_individuals[set_] = _sorted_pop
 
-            # Mutation
-            for i, mp in enumerate(m_random_numbers):
-                if mp < self._mut_prob:
-                    self._log("MUT", "Mutation occurred for individual {}".format(i))
-                    self._individuals[i] = self._mutation(self._individuals[i])
-            self._old_individuals = _sorted_pop
+        # Migration and adoption
+        if not self._no_mig and all(self._updated):
+            random_set = np.random.randint(self._sets)
+            best = None
+            best_fitness = -float("inf")
+            for i in self._old_individuals[random_set]:
+                if best_fitness < i._fitness:
+                    best_fitness = i._fitness
+                    best = i.copy()
+            best._fitness = None
+            best._parents = None
+            self._log(random_set, "MIG", "Individual {} migrate".format(best))
+
+            for set_ in range(self._sets):
+                if set_ != random_set:
+                    random_index = np.random.randint(self._pop_size)
+                    old_ind = self._individuals[set_][random_index]
+                    new_ind = best.copy()
+                    new_ind._parents = [p.copy() for p in old_ind._parents]
+                    self._individuals[set_][random_index] = new_ind
+                    self._log(set_, "MIG", "Individual {} replaced with {}".format(old_ind, self._individuals[set_][random_index]))
+        # Migration and adoption
+
         return self._individuals
 
     def tell(self, fitnesses):
         """
         Assigns the fitness for each individual
 
-        :fitnesses: a list of numbers (the higher the better) associated (by index) to the individuals
+        :squad_fitnesses: [agents x pop_size] list of numbers (the higher the better) associated (by index) to the individuals
+                          Must be orginezed in [agents x pop_size] before the call of this function
         """
-        for index, (i, f) in enumerate(zip(self._individuals, fitnesses)):
-            if i._parents is not None:
-                self._log("FITNESS", "Individual {} has fitness {}. Its parents ({}) have fitnesses {}".format(index, f, i._parents, [k._fitness for k in i._parents]))
-            else:
-                self._log("FITNESS", "Individual {} has fitness {}".format(index, f))
-            i._fitness = f
-        self._update_population()
 
-    def _update_population(self):
+        for set_ in range(self._sets):
+            for index, (i, f) in enumerate(zip(self._individuals[set_], fitnesses[set_])):
+                if i._parents is not None:
+                    self._log(set_, "FITNESS", "Individual {} has fitness {}. Its parents ({}) have fitnesses {}".format(index, f, i._parents, [k._fitness for k in i._parents]))
+                else:
+                    self._log(set_, "FITNESS", "Individual {} has fitness {}".format(index, f))
+                i._fitness = f
+            self._update_population(set_)
+
+    def _update_population(self, set_):
         """ Creates the next population """
-        self._updated = True
-        self._individuals = self._replacement(self._old_individuals, self._individuals)
+        self._updated[set_] = True
+        self._individuals[set_] = self._replacement(self._old_individuals[set_], self._individuals[set_])

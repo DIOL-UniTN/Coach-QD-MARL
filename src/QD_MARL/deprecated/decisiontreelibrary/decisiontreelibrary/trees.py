@@ -12,8 +12,8 @@
 from .nodes import Node
 from .leaves import Leaf
 from collections import deque
+from copy import deepcopy
 from .conditions import Condition
-
 
 class DecisionTree:
     """
@@ -101,7 +101,7 @@ class DecisionTree:
         while len(fringe) > 0:
             cur, par = fringe.pop(0)
 
-            string += f"{id(cur)} [{str(cur)}]\n"
+            string += f"{id(cur)}[{str(cur)}]\n"
             if par is not None:
                 branch = "True" if par._left is cur else "False"
                 string += f"{id(par)} -->|{branch}| {id(cur)}\n"
@@ -114,12 +114,18 @@ class DecisionTree:
     def __str__(self):
         return repr(self)
 
-    def copy(self):
+    def copy_structure(self):
         """
-        Returns a copy
+        Returns a copy of the strcture
         """
-        dt = DecisionTree(self.get_root().copy())
+        dt = DecisionTree(self.get_root().copy_structure())
         return dt
+
+    def deep_copy(self):
+        """
+        Returns a deep copy
+        """
+        return deepcopy(self)
 
 
 class RLDecisionTree(DecisionTree):
@@ -127,7 +133,7 @@ class RLDecisionTree(DecisionTree):
     A Decision tree that can perform RL task
     """
 
-    def __init__(self, root, gamma, lambda_=0.0):
+    def __init__(self, root, gamma):
         """
         Initializes the decision tree for RL tasks
 
@@ -136,7 +142,6 @@ class RLDecisionTree(DecisionTree):
         """
         DecisionTree.__init__(self, root)
         self._gamma = gamma
-        self._lambda = lambda_
         self._last_leaves = deque(maxlen=2)
         self._rewards = deque(maxlen=2)
 
@@ -214,3 +219,16 @@ class RLDecisionTree(DecisionTree):
                 else:
                     decision = decision.get_right()
         return action
+
+    def copy_structure(self):
+        """
+        Returns a copy of the structure
+        """
+        dt = RLDecisionTree(self.get_root().copy_structure(), self._gamma)
+        return dt
+
+    def deep_copy(self):
+        """
+        Returns a deep copy
+        """
+        return deepcopy(self)

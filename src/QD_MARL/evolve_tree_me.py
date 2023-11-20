@@ -21,7 +21,7 @@ import numpy as np
 from tqdm import tqdm
 from copy import deepcopy
 from algorithms import grammatical_evolution, map_elites
-from decisiontreelibrary import QLearningLeafFactory, ConditionFactory, \
+from decisiontrees import QLearningLeafFactory, ConditionFactory, \
         RLDecisionTree
 from joblib import Parallel, delayed
 

@@ -20,6 +20,8 @@ from ribs.archives import AddStatus
 from ribs.emitters.opt import CMAEvolutionStrategy
 import matplotlib.pyplot as plt
 from .individuals import *
+from .grammatical_evolution import *
+from .genetic_programming import *
 import os
 import time
 

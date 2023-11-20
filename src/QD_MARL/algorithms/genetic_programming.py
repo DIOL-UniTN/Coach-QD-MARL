@@ -10,7 +10,7 @@
     :license: MIT, see LICENSE for more details.
 """
 import numpy as np
-from decisiontreelibrary import Leaf
+from decisiontrees import Leaf
 
 
 class GeneticProgramming:

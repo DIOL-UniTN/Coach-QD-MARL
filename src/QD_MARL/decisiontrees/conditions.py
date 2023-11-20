@@ -12,6 +12,7 @@
 import abc
 # import torch
 import numpy as np
+from copy import deepcopy
 from .nodes import Node
 
 
@@ -104,6 +105,12 @@ class Condition(Node):
         """
         new = Condition(self.get_left().copy(), self.get_right().copy())
         return new
+    
+    def deep_copy(self):
+        """
+        Returns a deep copy of itself
+        """
+        return deepcopy(self)
 
 
 class OrthogonalCondition(Condition):

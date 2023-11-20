@@ -6,15 +6,21 @@ import random
 import time
 from copy import deepcopy
 from math import sqrt
-
+from test_environments import *
 import numpy as np
 import pettingzoo
-import utils
-from algorithms import grammatical_evolution, map_elites_Pyribs
+from pettingzoo.utils import parallel_to_aec, aec_to_parallel
+import differentObservations
+from utils import *
+from algorithms import grammatical_evolution, map_elites, mapElitesCMA_pyRibs, map_elites_Pyribs, individuals
 from agents import *
-from decisiontreelibrary import (ConditionFactory, QLearningLeafFactory,
-                                 RLDecisionTree)
+from decisiontrees import (ConditionFactory, QLearningLeafFactory,
+                                 RLDecisionTree, DecisionTree)
 from magent2.environments import battlefield_v5
+from evaluations import *
+from decisiontrees.leaves import *
+import get_interpretability
+
 
 def get_map_elite(config):
     """
@@ -24,19 +30,21 @@ def get_map_elite(config):
     :log_path: a path to the log directory
     """
     # Setup GE
-    me_config = config["me"]
-
+    me_config = config["me"]["kwargs"]
     # Build classes of the operators from the config file
     me_config["c_factory"] = ConditionFactory()
     me_config["l_factory"] = QLearningLeafFactory(
-        config["leaves"]["params"],
-        config["leaves"]["decorators"]
+        config["QLearningLeafFactory"]["kwargs"]["leaf_params"], 
+        config["QLearningLeafFactory"]["kwargs"]["decorators"]
     )
+    
+    # me = map_elites.MapElites(**me_config)
     me = map_elites_Pyribs.MapElites_Pyribs(**me_config)
+    # me = mapElitesCMA_pyRibs.MapElitesCMA_pyRibs(**me_config)
 
     return me
 
-def pretrain_tree(t, rb):
+def pretrain_tree(tree, rb):
     """
     Pretrains a tree
 
@@ -44,277 +52,137 @@ def pretrain_tree(t, rb):
     :rb: The replay buffer
     :returns: The pretrained tree
     """
-    if t is None:
+    if tree is None:
         return None
     for e in rb:
-        t.empty_buffers()
+        tree.empty_buffers()
         if len(e) > 0:
             for s, a, r, sp in e:
-                t.force_action(s, a)
-                t.set_reward(r)
-            t.set_reward_end_of_episode()
-    return t
-
-def evaluate(trees, config):
-    # Check whether the phenotype is valid
-    for tree in trees:
-        if tree is None:
-            return -10**3, None
-
-    # Re-import the environments here to avoid problems with parallelization
-    import differentObservations
-    #from manual_policies import Policies
-    import numpy as np
-
-    # Load the function used to computer the features from the observation
-    compute_features = getattr(differentObservations, f"compute_features_{config['observation']}")
-
-    # Load manual policy if present
-    policy = None
-    #if config['manual_policy']:
-    #    policy = Policies(config['manual_policy'])
-
-    # Load the environment
-    env = battlefield_v5.env(**config['environment']).unwrapped
-    env.reset()#This reset lead to the problem
-
-    # Set tree and policy to agents
-    agents = {}
-    for agent_name in env.agents:
-        agent_squad = "_".join(agent_name.split("_")[:-1])
-        if agent_squad == config["team_to_optimize"]:
-            agent_number = int("_".join(agent_name.split("_")[1]))
+                tree.force_action(s, a)
+                tree.set_reward(r)
+            tree.set_reward_end_of_episode()
+    return tree
             
-            # Search the index of the set in which the agent belongs
-            set_ = 0
-            for set_index in range(len(config["sets"])):
-                if agent_number in config["sets"][set_index]:
-                    set_ = set_index
-
-            # Initialize trining agent
-            agents[agent_name] = Agent(agent_name, agent_squad, set_, trees[set_], None, True)
-        else:
-            # Initialize random or policy agent
-            agents[agent_name] = Agent(agent_name, agent_squad, None, None, policy, False)
-
-    # Start the training
-    for i in range(config["training"]["episodes"]):
-
-        # Seed the environment
-        env.reset(seed=i)
-        np.random.seed(i)
-        env.reset()
-
-        # Set variabler for new episode
-        for agent_name in agents:
-            if agents[agent_name].to_optimize():
-                agents[agent_name].new_episode()
-        red_agents = 12
-        blue_agents = 12
-        
-        # tree.empty_buffers()    # NO-BUFFER LEAFS
-        # Iterate over all the agents
-        for index, agent_name in enumerate(env.agents):
-            actions = {agent: env.action_space(agent).sample() for agent in env.agents}
-            obs, rew, done, trunc, _ = env.step(actions)
-
-            agent = agents[agent_name]
-
-            if agent.to_optimize():
-                # Register the reward
-                agent.set_reward(rew)
-            
-            action = env.action_space(agent_name)
-            if not done and not trunc: # if the agent is alive
-                if agent.to_optimize():
-                    # compute_features(observation, allies, enemies)
-                    if agent.get_squad() == 'blue':
-                        action = agent.get_output(compute_features(obs, blue_agents, red_agents))
-                    else:
-                        action = agent.get_output(compute_features(obs, red_agents, blue_agents))
-                else:
-                    if agent.has_policy():
-                        if agent.get_squad() == 'blue':
-                            action = agent.get_output(compute_features(obs, blue_agents, red_agents))
-                        else:
-                            action = agent.get_output(compute_features(obs, red_agents, blue_agents))
-                    else:
-                        action = env.action_space(agent_name).sample()
-                        #action = np.random.randint(21)
-            else: # update the number of active agents
-                if agent.get_squad() == 'red':
-                    red_agents -= 1
-                else:
-                    blue_agents -= 1
-
-            env.step(action)
-
-    env.close()
-
-    scores = []
-    actual_trees = []
-    for agent_name in agents:
-        if agents[agent_name].to_optimize():
-            scores.append(agents[agent_name].get_score_statistics(config['statistics']['agent']))
-            actual_trees.append(agents[agent_name].get_tree())
-    return scores, actual_trees
-
 def produce_tree(config, log_path=None, extra_log=False, debug=False, manual_policy=False):
-
-    number_of_agents = config["ge"]["agents"]
-    number_of_sets = config["ge"]["sets"]
-
+    # Setup GE
+    ge_config = config["ge"]
+    me_config = config["me_config"]
+    gram_dir = None
+    for op in ["mutation", "crossover", "selection", "replacement"]:
+        ge_config[op] = getattr(
+            grammatical_evolution, ge_config[op]["type"]
+        )(**ge_config[op]["params"])
+    # ge[i] -> set_i
+    ge = grammatical_evolution.GrammaticalEvolution(**ge_config, logdir=gram_dir)
     # setup log files
     evolution_dir = os.path.join(log_path, "Evolution_dir")
     os.makedirs(evolution_dir , exist_ok=False)
     trees_dir = os.path.join(log_path, "Trees_dir")
     os.makedirs(trees_dir , exist_ok=False)
 
-    me = get_map_elite(config) # TODO
-    print(me)
+    # Retrieve the map function from utils
+    map_ = utils.get_map(config["training"]["jobs"], debug)
     
-    gram_dir = None
-    if extra_log:
-        gram_dir = os.path.join(log_path, "grammatical_evolution")
-        os.makedirs(gram_dir, exist_ok=False)
-
+    # setup map elite and trees
+    me = get_map_elite(me_config)
+    init_trees = me._init_pop()
+    # Transform the me-trees in RLDecisionTree
+    trees = map_(RLDecisionTree, init_trees, config["training"]["gamma"])
+    
+    # init coach
+    # coach_tree = RLDecisionTree(init_trees_[-1], config["coach_training"]["gamma"])
+    # coach = CoachAgent("coach", None, coach_tree)
+    coach = None
+    # Init replay buffer
+    replay_buffer = []
+    # Pretrain the trees
+    trees = [pretrain_tree(t, replay_buffer) for t in trees]
+        # Initialize best individual
+    best, best_fit, new_best = None, -float("inf"), False
+    
     # Setup sets
-    if config["sets"] == "random":
-        sets = [[] for _ in range(number_of_sets)]
-        set_full = [False for _ in range(number_of_sets)]
-        agents = [i for i in range(number_of_agents)]
-
-        agents_per_set = number_of_agents // number_of_sets
-        surplus = number_of_agents // number_of_sets
-
-        while not all(set_full):
-            set_index = random.randint(0, number_of_sets -1)
-            if not set_full[set_index]:
-                random_index = random.randint(0, len(agents) -1)
-                sets[set_index].append(agents[random_index])
-                del agents[random_index]
-                if len(sets[set_index]) == agents_per_set:
-                    set_full[set_index] = True
-
-        if surplus > 0:
-            while len(agents) != 0:
-                set_index = random.randint(0, number_of_sets -1)
-                random_index = random.randint(0, len(agents) -1)
-                sets[set_index].append(agents[random_index])
-                del agents[random_index]
-
-        for set_ in sets:
-            set_.sort()
-
-        config["sets"] = sets
-
+    
+    
     with open(os.path.join(log_path, "sets.log"), "w") as f:
         f.write(f"{config['sets']}\n")
 
-    # Setup GE
-    ge_config = config["ge"]
+    with open(os.path.join(log_path, "log.txt"), "a") as f:
+        f.write(f"Generation Min Mean Max Std\n")
 
-    # Build classes of the operators from the config file
-    for op in ["mutation", "crossover", "selection", "replacement"]:
-        ge_config[op] = getattr(
-            grammatical_evolution, ge_config[op]["type"]
-        )(**ge_config[op]["params"])
-
-    # ge[i] -> set_i
-    ge = grammatical_evolution.GrammaticalEvolution(**ge_config, logdir=gram_dir)
-    # Retrive the map function from utils
-    map_ = utils.get_map(config["training"]["jobs"], debug)
-    # Initialize best individual for each agent
-    best = [None for _ in range(number_of_agents)]
-    best_fit = [-float("inf") for _ in range(number_of_agents)]
-    new_best = [False for _ in range(number_of_agents)]
-
-    print(f"{'Generation' : <10} {'Set': <10} {'Min': <10} {'Mean': <10} {'Max': <10} {'Std': <10}")
+    # Compute the fitnesses
+    # We need to return the trees in order to retrieve the
+    #   correct values for the leaves when using the
+    #   parallelization
+    print_debugging("Evaluating initial population")
+    fitnesses, trees = init_eval(trees, config, replay_buffer, map_, coach = None)
+    
+    print_debugging((fitnesses, len(fitnesses), len(trees)))
+    
+    amax = np.argmax(fitnesses)
+    max_ = fitnesses[amax]
+    me.tell(fitnesses, trees)
+    
+    # print_info(f"{'Generation' : <10} {'Min': <10} {'Mean': <10} \
+    #   {'Max': <10} {'Std': <10} {'Invalid': <10} {'Best': <10}")
+    
+    # Check whether the best has to be updated
     # Iterate over the generations
-    for gen in range(config["training"]["generations"]):
+    for i in range(config["training"]["generations"]):
+        # Retrieve the current population
 
-        # Retrive the current population
-        pop = ge.ask()
+        #team_selection(me, config)
 
-        # Convert the genotypes in phenotypes
-        trees = [map_(utils.genotype2phenotype, pop[i], config) for i in range(number_of_sets)]
-        # Form different groups of trees
-        squads = [[trees[j][i] for j in range(number_of_sets)] for i in range(config['ge']['pop_size'])]
+        trees = me.ask(random = False, best = True)
+        trees = map_(RLDecisionTree, trees, config["training"]["gamma"])
+        print_debugging(len(trees))
         # Compute the fitnesses
-        # We need to return the trees in order to retrive the
-        #   correct values for the leaves when using the parallelization
-        return_values = map_(evaluate, squads, config) 
-        agents_fitness = [ [] for _ in range(number_of_agents)]
-        agents_tree = [ [] for _ in range(number_of_agents)]
-
-        # Store trees and fitnesses
-        for values in return_values:
-            for i in range(number_of_agents):
-                agents_fitness[i].append(values[0][i])
-                agents_tree[i].append(values[1][i])
-
-        # Check whether the best, for each agent, has to be updated
-        amax = [np.argmax(agents_fitness[i]) for i in range(number_of_agents)]
-        max_ = [agents_fitness[i][amax[i]] for i in range(number_of_agents)]
-
-        for i in range(number_of_agents):
-            if max_[i] > best_fit[i]:
-                best_fit[i] = max_[i]
-                best[i] = agents_tree[i][amax[i]]
-                new_best[i] = True
-
-                tree_text = f"{best[i]}"
-                utils.save_tree(best[i], trees_dir, f"best_agent_{i}")
-                with open(os.path.join(trees_dir, f"best_agent_{i}.log"), "w") as f:
-                    f.write(tree_text)
-
-        # Calculate fitnesses for each set
-        sets_fitness = [ [] for _ in range(number_of_sets)]
-        for index, set_ in enumerate(config["sets"]):
-
-            set_agents_fitnesses = []
-            for agent in set_:
-                set_agents_fitnesses.append(agents_fitness[agent])
-
-            set_agents_fitnesses = np.array(set_agents_fitnesses)
-
-            # Calculate fitness for each individual in the set
-            sets_fitness[index] = [getattr(np, config['statistics']['set']['type'])(a=set_agents_fitnesses[:, i], **config['statistics']['set']['params']) for i in range(set_agents_fitnesses.shape[1])]
+        # We need to return the trees in order to retrieve the
+        #   correct values for the leaves when using the
+        #   parallelization
+        fitnesses, trees= evaluate(trees, config, replay_buffer, map_)
+        print_debugging((fitnesses, len(fitnesses), len(trees)))
+        # Check whether the best has to be updated
+        amax = np.argmax(fitnesses)
+        max_ = fitnesses[amax]
+        
+        if max_ > best_fit:
+            best_fit = max_
+            best = trees[amax]
+            new_best = True
 
         # Tell the fitnesses to the GE
-        ge.tell(sets_fitness)
+        me.tell(fitnesses)
 
-        # Compute stats for each agent
-        agent_min = [np.min(agents_fitness[i]) for i in range(number_of_agents)]
-        agent_mean = [np.mean(agents_fitness[i]) for i in range(number_of_agents)]
-        agent_max = [np.max(agents_fitness[i]) for i in range(number_of_agents)]
-        agent_std = [np.std(agents_fitness[i]) for i in range(number_of_agents)]
+        # Compute stats
+        fitnesses = np.array(fitnesses)
+        valid = fitnesses != -100000
+        min_ = np.min(fitnesses[valid])
+        mean = np.mean(fitnesses[valid])
+        max_ = np.max(fitnesses[valid])
+        std = np.std(fitnesses[valid])
+        invalid = np.sum(fitnesses == -100000)
+        print_info(f"{'Generation' : <10} {'Min': <10} {'Mean': <10} \
+            {'Max': <10} {'Std': <10} {'Invalid': <10} {'Best': <10}")
+        print_info(f"{i: <10} {min_: <10.4f} {mean: <10.4f} \
+            {max_: <10.4f} {std: <10.4f} {invalid: <10} {best_fit: <10.4f}")
 
-        for i in range(number_of_agents):
-            #print(f"{gen: <10} agent_{i: <4} {agent_min[i]: <10.2f} {agent_mean[i]: <10.2f} {agent_max[i]: <10.2f} {agent_std[i]: <10.2f}")
-            with open(os.path.join(evolution_dir, f"agent_{i}.log"), "a") as f:
-                f.write(f"{gen: <10} {agent_min[i]: <10.2f} {agent_mean[i]: <10.2f} {agent_max[i]: <10.2f} {agent_std[i]: <10.2f}\n")
+        # Update the log file
+        with open(os.path.join(log_path, "log.txt"), "a") as f:
+            f.write(f"{i} {min_} {mean} {max_} {std} {invalid}\n")
+            if new_best:
+                f.write(f"New best: {best}; Fitness: {best_fit}\n")
+                with open(join("best_tree.mermaid"), "w") as f:
+                    f.write(str(best))
+        new_best = False
+    
+    return trees
 
-            new_best[i] = False
-
-        # Compute states for each set
-        set_min = [np.min(sets_fitness[i]) for i in range(number_of_sets)]
-        set_mean = [np.mean(sets_fitness[i]) for i in range(number_of_sets)]
-        set_max = [np.max(sets_fitness[i]) for i in range(number_of_sets)]
-        set_std = [np.std(sets_fitness[i]) for i in range(number_of_sets)]
-
-        for i in range(number_of_sets):
-            print(f"{gen: <10} set_{i: <4} {set_min[i]: <10.2f} {set_mean[i]: <10.2f} {set_max[i]: <10.2f} {set_std[i]: <10.2f}")
-            with open(os.path.join(evolution_dir, f"set_{i}.log"), "a") as f:
-                f.write(f"{gen: <10} {set_min[i]: <10.2f} {set_mean[i]: <10.2f} {set_max[i]: <10.2f} {set_std[i]: <10.2f}\n")
-
-    return best
 
 if __name__ == "__main__":
     import argparse
     import json
     import shutil
-
+    import yaml
     import utils
     parser = argparse.ArgumentParser()
     parser.add_argument("config", help="Path of the config file to use")
@@ -322,9 +190,14 @@ if __name__ == "__main__":
     parser.add_argument("--log", action="store_true", help="Log flag")
     parser.add_argument("seed", type=int, help="Random seed to use")
     args = parser.parse_args()
-
+    print_info("Launching Quality Diversity MARL")
+    print_configs("Environment configurations file: ", args.config)
+    if args.debug:
+        print_configs("DEBUG MODE")
+    
     # Load the config file
     config = json.load(open(args.config))
+    
     # Set the random seed
     random.seed(args.seed)
     np.random.seed(args.seed)
@@ -339,15 +212,17 @@ if __name__ == "__main__":
     with open(join("seed.log"), "w") as f:
         f.write(str(args.seed))
     
-    best = produce_tree(config, log_path, args.log, args.debug)
+    squad = produce_tree(config, log_path, args.log, args.debug)
 
     import logging
     logging.basicConfig(filename=join("output.log"), level=logging.INFO, format='%(asctime)s %(message)s', filemode='w') 
     logger=logging.getLogger() 
+    index = 0
     
-    for index, tree in enumerate(best):
-        print(f"\nagent_{index}:\n{tree}")
-        logger.info(f"\nagent_{index}:\n{tree}")
-
+    for player in squad:
+        print_info(player)
+    
+    # return interpretability(best, config, log_path, index, logger)
+    
     
     

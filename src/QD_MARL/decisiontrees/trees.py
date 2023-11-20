@@ -11,11 +11,14 @@
 """
 # import torch
 import numpy as np
+import torch
 from .nodes import Node
-from . import Leaf
 from collections import deque
 from .conditions import Condition
+from .leaves import Leaf
 from processing_element import ProcessingElement
+from utils.print_outputs import *
+from algorithms.individuals import IndividualGP
 
 
 
@@ -114,19 +117,15 @@ class DecisionTree:
     def __repr__(self):
         fringe = [(self._root, None)]
         string = ""
-
         while len(fringe) > 0:
             cur, par = fringe.pop(0)
-
             string += f"{id(cur)} [{str(cur)}]\n"
             if par is not None:
                 branch = "True" if par.get_left() is cur else "False"
                 string += f"{id(par)} -->|{branch}| {id(cur)}\n"
             if not isinstance(cur, Leaf):
-
                 fringe.append((cur.get_left(), cur))
                 fringe.append((cur.get_right(), cur))
-
         return string
 
     def __str__(self):
@@ -152,6 +151,7 @@ class RLDecisionTree(DecisionTree, ProcessingElement):
         :root: The root of the tree
         :gamma: The discount factor
         """
+        
 
         DecisionTree.__init__(self, root)
         self._gamma = gamma
@@ -169,17 +169,17 @@ class RLDecisionTree(DecisionTree, ProcessingElement):
         :returns: A numpy array, with size equal to the
                     dimensionality of the output space
         """
-        #print(self)
-        #print(self._root)
-        decision, last_leaf = self._root.get_output(input_)
-        self._last_leaves.appendleft(last_leaf)
-        return decision
-
-        """
+        # decision = self._root
+        # self._last_leaves.appendleft(decision)
+        # decision  = self._root.get_output(input_)
+        
+        
         decision = self._root
-        while isinstance(decision, Node):
+        while isinstance(decision, Node) or isinstance(decision, IndividualGP):
             if isinstance(decision, Leaf):
                 self._last_leaves.appendleft(decision)
+                decision = decision.get_output(input_)
+            elif isinstance(decision, IndividualGP):
                 decision = decision.get_output(input_)
             else:
                 branch = decision.get_branch(input_)
@@ -187,10 +187,10 @@ class RLDecisionTree(DecisionTree, ProcessingElement):
                     decision = decision.get_left()
                 else:
                     decision = decision.get_right()
-        """
         return decision
+        
 
-    def set_reward(self, reward):
+    def set_reward(self, reward): #TODO fix set rewards and why is called in DecisionTree
         """
         Gives a reward to the tree.
         NOTE: this method stores the last reward and makes
@@ -264,6 +264,10 @@ class RLDecisionTree(DecisionTree, ProcessingElement):
         if len(self._last_leaves) > 0:
             self.set_reward_end_of_episode()
         self._init_buffers()
+    
+    def deep_copy(self):
+        dt = RLDecisionTree(self.get_root().deep_copy(), self._gamma)
+        return dt
 
 
 class FastDecisionTree(RLDecisionTree):

@@ -16,6 +16,7 @@ from .common import OptMetaClass
 from decisiontrees import Leaf, Condition
 from operator import gt, lt, add, sub, mul
 from processing_element import ProcessingElementFactory, PEFMetaClass
+from utils.print_outputs import *
 
 
 def safediv(a, b):
@@ -582,10 +583,10 @@ class MapElites(ProcessingElementFactory, metaclass=OptMetaClass):
         desc = self._get_descriptor(ind)
         thr = [abs(max(self._map_bound[i]) - min(self._map_bound[i])) / self._map_size[i] for i in
                range(len(self._map_size))]
-        print(desc)
-        print(thr)
+        print_info(desc)
+        print_info(thr)
         desc = [int(desc[i] - min(self._map_bound[i]) / thr[i]) for i in range(len(self._map_size))]
-        print(desc)
+        print_info(desc)
         print("-----------------")
         for i in range(len(self._map_size)):
             if desc[i] < 0:

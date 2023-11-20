@@ -1,0 +1,80 @@
+Factories:
+  - class_name: DecisionTreeFactory
+    kwargs:
+      Optimizer:
+        class_name: MapElitesCMA_pyRibs
+        kwargs:
+          map_size: [ 7,7 ]
+          cx_prob: 0.3
+          init_pop_size: 50 #50
+          map_bounds: [ [ 0,7 ],[ 0,7 ] ]
+          batch_pop: 6 #20
+          maximize: true
+          restart_rule: 3
+          archive: Grid
+          bins: 50
+          sliding_bins: [ 6,4 ]
+          emitters: 5
+          sigma0: 1 
+          bounds:
+            float:
+              type: float
+              min: -1.5
+              max: 1
+            input_index:
+              type: int
+              min: 0
+              max: 4
+            action:
+              type: int
+              min: 0
+              max: 1
+          max_depth: 7
+          cond_depth: 7
+      DecisionTree:
+        gamma: 0
+      ConditionFactory:
+        # Not used with GP
+        type: orthogonal
+        n_inputs: 2
+      #LeafFactory:
+      #  class_name: ConstantLeafFactory
+      #   kwargs:
+      #   n_actions: 2
+      LeafFactory:
+        class_name: QLearningLeafFactory
+        kwargs:
+          leaf_params: { n_actions: 2, learning_rate: 0.1 }
+          decorators: [
+            [ "RandomInit", { "low": -1, "high": 1 } ],
+            [ "EpsilonGreedy",{ "epsilon": 0.05, "decay": 0.999 } ],
+            [ "NoBuffers", { } ],
+            [ "QLambda", { "decay": 0.81 } ]
+          ]
+  - class_name: UtilFactory
+    kwargs:
+      module: OneHotEncoder
+      n_actions: 2
+Mapper:
+  class: MultiProcessMapper
+  kwargs:
+    n_jobs: 10 #10
+
+PipelineFactory:
+  class: CartesianProductPipelineFactory
+  config:
+    aggregation_fcn: max
+
+EvolutionaryProcess:
+  generations: 5 #200
+
+Fitness:
+  name: GymTask
+  episodes: 120
+  seeding: False
+  seed: 0
+  case: train
+  time_window: 30
+  n_actions: 2
+  kwargs:
+    env_name: CartPole-v1

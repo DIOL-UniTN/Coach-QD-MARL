@@ -1,4 +1,5 @@
 import numpy as np
+from utils.print_outputs import *
 
 def compute_features_42(obs, n_allies, n_enemies):
     
@@ -226,6 +227,7 @@ def compute_features_42_obs(obs, n_allies, n_enemies):
 
 def compute_features_34_old(obs, n_allies, n_enemies):
     
+      
     map_h = obs.shape[0]
     map_w = obs.shape[1]
 
@@ -323,7 +325,7 @@ def compute_features_34_old(obs, n_allies, n_enemies):
 
 def compute_features_34_new(obs, n_allies, n_enemies):
     
-    map_h = obs.shape[0]
+    map_h = obs.shape[1]
     map_w = obs.shape[1]
 
     coordinates = tuple(obs[0, 0, 7:9])
@@ -425,7 +427,7 @@ def compute_features_34_new(obs, n_allies, n_enemies):
                 enemy_presence.append(nondead[map_h_2 + y, map_w_2 + x])
 
     new_features.extend(enemy_presence)
-
+    
     return np.array(new_features)
 
 '''

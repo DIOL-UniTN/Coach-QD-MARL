@@ -1,5 +1,5 @@
 from importlib.resources import path
-from experiment_launchers.pipeline import *
+# from experiment_launchers.pipeline import *
 import pickle
 import re
 import os
@@ -161,7 +161,7 @@ def calc_complexity_from_string(code, env, tree2Node=tree2Node):
 
     for episode in (range(5)):
         mean_reward.append(0)
-        e = gym.make(env)
+        e = env
         e.seed(episode)
         obs = e.reset()
         done = False
@@ -318,6 +318,28 @@ def convert(string):
             if len(nodes) == 1:
                 root = nodes[id_]
     return root
+
+def fit_tree(tree):
+    tree = str(tree)
+    print(tree)
+    tree = tree.replace(" [","[")
+    tree = tree.replace("[0]","0")
+    tree = tree.replace("[1]","1")
+    tree = tree.replace("[2]","2")
+    tree = tree.replace("[3]","3")
+    tree = tree.replace("[4]","4")
+    tree = tree.replace("[5]","5")
+    tree = tree.replace("input","_in")
+    tree = tree.replace("Node_m_to_p object at ","")
+    tree = re.sub("\(.*?\)","",tree)
+    #tree = re.sub("\<.*?\>","",tree)
+    tree = tree.replace("\nOneHotEncoder\n\n","")
+    tree = tree.replace("RLDecisionTree\n","")
+    tree = tree[:tree.rfind('\n')]
+    tree = tree[:tree.rfind('\n')]
+    tree = tree[:tree.rfind('\n')]
+    print(tree)
+    return tree
 
 if __name__ == "__main__":
     #path_dir = "/home/matteo/marl_dts/src/logs/CartPole-ME_pyRibs_3/28-05-2022_18-38-45_xvkuotpf/"

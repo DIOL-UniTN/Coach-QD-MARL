@@ -11,11 +11,12 @@
 """
 import string
 import numpy as np
+import os
+import pickle
 from datetime import datetime
 from joblib import Parallel, delayed
-from decisiontreelibrary import RLDecisionTree
-from decisiontreelibrary import ConditionFactory, QLearningLeafFactory
-
+from decisiontrees import RLDecisionTree
+from decisiontrees import ConditionFactory, QLearningLeafFactory
 
 def get_logdir_name():
     """
@@ -87,6 +88,8 @@ class Grammar(dict):
             circular_dict[k] = CircularList(v)
         dict.__init__(self, circular_dict)
 
+# PER RIPARAZIONE
+from decisiontrees import Condition
 
 def genotype2phenotype(individual, config):
     """
@@ -104,7 +107,6 @@ def genotype2phenotype(individual, config):
         config["leaves"]["params"],
         config["leaves"]["decorators"]
     )
-    lambda_ = config["training"].get("lambda", 0)
 
     if grammar["root"][next(gene)] == "condition":
         params = cfactory.get_trainable_parameters()
@@ -113,14 +115,13 @@ def genotype2phenotype(individual, config):
         )
     else:
         root = lfactory.create()
-        return RLDecisionTree(root, config["training"]["gamma"], lambda_)
+        return RLDecisionTree(root, config["training"]["gamma"])
 
     fringe = [root]
 
     try:
         while len(fringe) > 0:
             node = fringe.pop(0)
-
             for i, n in enumerate(["left", "right"]):
                 if grammar["root"][next(gene)] == "condition":
                     params = cfactory.get_trainable_parameters()
@@ -133,8 +134,25 @@ def genotype2phenotype(individual, config):
                     leaf = lfactory.create()
                     getattr(node, f"set_{n}")(leaf)
     except StopIteration:
-        return None
-    return RLDecisionTree(root, config["training"]["gamma"], lambda_)
+        # tree repair
+        try:
+            fringe = [root]
+
+            while len(fringe) > 0:
+                node = fringe.pop(0)
+                if isinstance(node, Condition):
+                    for i, n in enumerate(["left", "right"]):
+                        actual_node = getattr(node, f"get_{n}")()
+                        if actual_node is None:
+                            #print("INVALIDO")
+                            actual_node = lfactory.create()
+                            getattr(node, f"set_{n}")(actual_node)
+                        fringe.insert(i, actual_node)
+        except Exception as e:
+            return None
+
+    finally:
+        return RLDecisionTree(root, config["training"]["gamma"])
 
 
 def genotype2str(genotype, config):
@@ -147,3 +165,17 @@ def genotype2str(genotype, config):
 
     """
     pass
+
+def save_tree(tree, log_dir, name):
+    if log_dir is not None:
+        assert isinstance(tree, RLDecisionTree), "Object passed is not a RLDecisionTree"
+        log_file = os.path.join(log_dir, name + ".pickle")
+        with open(log_file, "wb") as f:
+            pickle.dump(tree, f)
+
+def get_tree(log_file):
+    tree = None
+    if log_file is not None:
+        with open(log_file, "rb") as f:
+            tree = pickle.load(f)
+    return tree

@@ -6,11 +6,11 @@ from tkinter import Grid
 import numpy as np
 from copy import deepcopy
 from .common import OptMetaClass
-from decisiontrees import Leaf, Condition
+from decisiontrees import *
 from operator import gt, lt, add, sub, mul
 from processing_element import ProcessingElementFactory, PEFMetaClass
 from ribs.archives._cvt_archive import CVTArchive
-from ribs.archives._grid_archive import GridArchive
+from ribs.archives import GridArchive
 from ribs.archives._sliding_boundaries_archive import SlidingBoundariesArchive
 from ribs.archives._archive_data_frame import ArchiveDataFrame
 from ribs.visualize import cvt_archive_heatmap
@@ -20,6 +20,7 @@ from ribs.archives import AddStatus
 from ribs.emitters.opt import CMAEvolutionStrategy
 import matplotlib.pyplot as plt
 from .individuals import *
+
 import os
 import time
 
@@ -38,15 +39,16 @@ class EmitterCMA:
         if restart_rule not in ["basic", "no_improvement"]:
             raise ValueError(f"Invalid restart_rule {restart_rule}")
         self._restart_rule = restart_rule
-        self._bounds = bounds
+        self._bounds = bounds        
         self._solution_dim = padding
 
        
     def initialize(self):
-        self.x0 = self._archive.get_random_elite()[4]
+        self.x0 = self._archive.sample_elites(4)#TODO: no pop initialized in archive
+        print("dims, ",self._solution_dim, "dounds ",self._bounds)
         self.opt = CMAEvolutionStrategy(self._sigma0, self._batch_size, self._solution_dim,
-                                        self._weight_rule, self._opt_seed,
-                                        self._archive.dtype)
+                                        self._opt_seed, self._archive.dtype)
+        self.x0 = IndividualGP(self.x0,self._solution_dim)
         self.opt.reset(self.x0._const)
         self._num_parents = (self.opt.batch_size //
                              2 if self._selection_rule == "mu" else None)
@@ -64,9 +66,9 @@ class EmitterCMA:
     def ask(self):
         if self._restarts:
             self._restarts = False
-            self.x0 = self._archive.get_random_elite()[4]
+            self.x0 = self._archive.sample_elites(4)
             self.opt.reset(self.x0._const)
-        evolved = self.opt.ask(self._lower_bounds, self._upper_bounds)
+        evolved = self.opt.ask(self._lower_bounds, self._upper_bounds, self._batch_size)
         tree_out = []
         for i in evolved:
             temp = self.x0.copy()
@@ -150,16 +152,16 @@ class MapElitesCMA_pyRibs(ProcessingElementFactory, metaclass=OptMetaClass):
         self._sigma0 = kwargs["sigma0"]
         self._padding = pow(2,self._max_depth)*self._cond_depth
         self._restart = [False for _ in range(self._num_emitters)]
+        self._solution_dim = kwargs["solution_dim"]
         if self._archive_type == "CVT":
             self._archive = CVTArchive(self._bins,self._map_bound)
         elif self._archive_type == "Grid":
-            self._archive = GridArchive(self._map_size,self._map_bound)
+            self._archive = GridArchive(solution_dim=self._solution_dim, dims=self._map_size, ranges=self._map_bound)
         elif self._archive_type == "SlidingBoundaries":
             self._archive = SlidingBoundariesArchive(self._bins_sliding,self._map_bound)
         else:
             raise Exception("archive not valid")
-        
-        self._archive.initialize(1) # one dimension (counter)
+        # self._archive.initialize(self._solution_dim) # pyribs v.0.6.3 don't have inizialization method anymore
         self._counter = 1 # number inserted in sol field of the archive
         self._gen_number = 1
         self._max_fitness = -250
@@ -246,7 +248,7 @@ class MapElitesCMA_pyRibs(ProcessingElementFactory, metaclass=OptMetaClass):
 
             if d > max_:
                 max_ = d
-
+            
             if not isinstance(n, Leaf):
                 fringe.append((d + 1, n._then))
                 fringe.append((d + 1, n._else))
@@ -254,7 +256,6 @@ class MapElitesCMA_pyRibs(ProcessingElementFactory, metaclass=OptMetaClass):
 
     def _reduce_expr_len(self, expr):
         fringe = [(0, expr)]
-
         max_ = 0
         while len(fringe) > 0:
             d, cur = fringe.pop(0)
@@ -353,10 +354,8 @@ class MapElitesCMA_pyRibs(ProcessingElementFactory, metaclass=OptMetaClass):
         for i in range(grow):
             root = self._get_random_leaf_or_condition()
             fringe = [root]
-
             while len(fringe) > 0:
                 node = fringe.pop(0)
-
                 if isinstance(node, Leaf):
                     continue
 
@@ -366,19 +365,19 @@ class MapElitesCMA_pyRibs(ProcessingElementFactory, metaclass=OptMetaClass):
                 else:
                     left = self._random_leaf()
                     right = self._random_leaf()
-
                 node.set_then(left)
                 node.set_else(right)
 
                 fringe.append(left)
                 fringe.append(right)
-
-            pop.append(IndividualGP(root,self._padding))
+            # appemding directly the individual without calling the constructor
+            pop.append(root)
+        self._pop = pop
         return pop
 
     def _mutation(self, p):
         p1 = p.copy()._genes
-        #print(type(p1))
+        print(type(p1))
         cp1 = None
 
         p1nodes = [(None, None, p1)]
@@ -496,7 +495,7 @@ class MapElitesCMA_pyRibs(ProcessingElementFactory, metaclass=OptMetaClass):
                     #print("Crossover and mutation on emitter ",i)
                     temp = list()
                     pop_temp = [
-                        self._archive.get_random_elite()[4] #metadata
+                        self._archive.sample_elites(4) #metadata
                         for _ in range(self._batch_pop)
                     ]
                     for i in range(0, len(pop_temp), 2):
@@ -525,11 +524,13 @@ class MapElitesCMA_pyRibs(ProcessingElementFactory, metaclass=OptMetaClass):
         
         end = time.time()
         return [p._genes for p in self._pop]
+    
     def tell(self,fitnesses, data=None):
         archive_flag = self._archive.empty
         sols, objs, behavs, meta = [], [], [], [] 
-        for p in zip(self._pop,fitnesses):
-            desc = self._get_descriptor(p[0]._genes)
+        pop_individuals = [IndividualGP(p,self._padding) for p in self._pop]
+        for p in zip(self._pop,fitnesses, pop_individuals):
+            desc = self._get_descriptor(p[2]._genes)
             p[0]._fitness = p[1]
             thr = [abs((max(self._map_bound[i]) - min(self._map_bound[i])) / self._map_size[i]) for i in
                 range(len(self._map_size))]
@@ -540,9 +541,9 @@ class MapElitesCMA_pyRibs(ProcessingElementFactory, metaclass=OptMetaClass):
                 elif desc[i] >= self._map_size[i]:
                     desc[i] = self._map_size[i] - 1
             desc = tuple(desc)
-
+            
             if archive_flag:
-                self._archive.add(self._counter,p[1],desc,p[0])
+                self._archive.add_single(desc, p[1], desc, self._counter)
             else:
                 sols.append(self._counter,)
                 objs.append(p[1])

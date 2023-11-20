@@ -13,6 +13,7 @@ from processing_element import ProcessingElementFactory, PEFMetaClass
 from ribs.archives._cvt_archive import CVTArchive
 from ribs.archives._grid_archive import GridArchive
 from ribs.archives._sliding_boundaries_archive import SlidingBoundariesArchive
+from ribs.archives import EliteBatch, Elite
 from ribs.archives._archive_data_frame import ArchiveDataFrame
 from ribs.visualize import cvt_archive_heatmap
 from ribs.visualize import grid_archive_heatmap
@@ -62,17 +63,15 @@ class MapElites_Pyribs(ProcessingElementFactory, metaclass=OptMetaClass):
         self._archive_type = kwargs["archive"]
         self._bins = kwargs["bins"]
         self._bins_sliding = kwargs["sliding_bins"]
-
+        self._solution_dim = kwargs["solution_dim"]
         if self._archive_type == "CVT":
             self._archive = CVTArchive(self._bins,self._map_bound)
         elif self._archive_type == "Grid":
-            self._archive = GridArchive(self._map_size,self._map_bound)
+            self._archive = GridArchive(solution_dim=self._solution_dim, dims=self._map_size, ranges=self._map_bound)
         elif self._archive_type == "SlidingBoundaries":
             self._archive = SlidingBoundariesArchive(self._bins_sliding,self._map_bound)
         else:
             raise Exception("archive not valid")
-        
-        self._archive.initialize(1) # one dimension (counter)
         self._counter = 1 # number inserted in sol field of the archive
         self._gen_number = 1
         self._max_fitness = -inf
@@ -277,22 +276,22 @@ class MapElites_Pyribs(ProcessingElementFactory, metaclass=OptMetaClass):
 
                 fringe.append(left)
                 fringe.append(right)
-
+            
             pop.append(IndividualGP(root))
+            self._pop = pop
         return pop
 
     def _mutation(self, p):
-        p1 = p.copy()._genes
+        p1 = p.deep_copy()._genes
         #print(type(p1))
         cp1 = None
 
         p1nodes = [(None, None, p1)]
 
-        fringe = [p1]
+        fringe = [IndividualGP(p1)]
         while len(fringe) > 0:
             node = fringe.pop(0)
-
-            if not isinstance(node, Leaf):
+            if not isinstance(node, Leaf) and not isinstance(node, IndividualGP):
                 fringe.append(node.get_left())
                 fringe.append(node.get_right())
 
@@ -301,8 +300,8 @@ class MapElites_Pyribs(ProcessingElementFactory, metaclass=OptMetaClass):
 
         cp1 = np.random.randint(0, len(p1nodes))
 
-        parent = p1nodes[cp1][0]
-        old_node = p1nodes[cp1][2]
+        parent = IndividualGP(p1nodes[cp1][0])
+        old_node = IndividualGP(p1nodes[cp1][2])
         if not isinstance(old_node, GPNodeCondition) or \
                 not isinstance(old_node, GPExpr):
             new_node = self._get_random_leaf_or_condition()
@@ -310,8 +309,10 @@ class MapElites_Pyribs(ProcessingElementFactory, metaclass=OptMetaClass):
             new_node = self._random_expr()
 
         if not isinstance(new_node, Leaf) and \
-                not isinstance(new_node, GPExpr):
-            if not isinstance(old_node, Leaf):
+                not isinstance(new_node, GPExpr) and \
+                    not isinstance(new_node, IndividualGP):
+            if not isinstance(old_node, Leaf) and \
+                    not isinstance(old_node, IndividualGP):
                 new_node.set_then(old_node.get_left())
                 new_node.set_else(old_node.get_right())
             else:
@@ -341,7 +342,7 @@ class MapElites_Pyribs(ProcessingElementFactory, metaclass=OptMetaClass):
         while len(fringe) > 0:
             node = fringe.pop(0)
 
-            if not isinstance(node, Leaf):
+            if not isinstance(node, Leaf) and not isinstance(node, IndividualGP) and not isinstance(node, EliteBatch):
                 fringe.append(node.get_left())
                 fringe.append(node.get_right())
 
@@ -356,10 +357,11 @@ class MapElites_Pyribs(ProcessingElementFactory, metaclass=OptMetaClass):
         fringe = [p2]
         while len(fringe) > 0:
             node = fringe.pop(0)
-
             if not isinstance(node, Leaf) and \
                not isinstance(node, GPVar) and \
-               not isinstance(node, GPConst):
+               not isinstance(node, GPConst) and \
+               not isinstance(node, IndividualGP) and \
+               not isinstance(node, EliteBatch):
                 fringe.append(node.get_left())
                 fringe.append(node.get_right())
 
@@ -387,25 +389,42 @@ class MapElites_Pyribs(ProcessingElementFactory, metaclass=OptMetaClass):
                 p2nodes[cp2][0].set_else(st1)
         else:
             p2 = st1
+            
         return IndividualGP(p1), IndividualGP(p2)
-    def ask(self):
+    
+    def ask(self, random = False, best = False):
         self._pop = []
         if self._archive.empty:
             self._pop = self._init_pop()
         else:
             temp = list()
-            self._pop = [
-                self._archive.get_random_elite()[4] #metadata
-                for _ in range(self._batch_pop)
-            ]
+            if random:
+                self._pop = [
+                    self._archive.sample_elites(1) #metadata
+                    for _ in range(self._batch_pop)
+                ]
+            elif best:
+                self._pop = [
+                    IndividualGP(self._archive.best_elite) #metadata
+                    for _ in range(self._batch_pop)
+                ]
+            else:
+                self._pop = [
+                    self._archive.sample_elites(1) #metadata
+                    for _ in range(self._batch_pop)
+                ]
             for i in range(0, len(self._pop), 2):
                 p1 = self._pop[i]
                 if i + 1 < len(self._pop):
                     p2 = self._pop[i + 1]
                 else:
                     p2 = None
-
                 o1, o2 = None, None
+                
+                p1 = IndividualGP(p1)
+                if p2 is not None:
+                    p2 = IndividualGP(p2)
+                    
                 # Crossover
                 if p2 is not None:
                     if  np.random.uniform() < self._cx_prob:
@@ -419,7 +438,9 @@ class MapElites_Pyribs(ProcessingElementFactory, metaclass=OptMetaClass):
                     temp.append(p1)
             self._pop = [self._mutation(p) for p in temp]
         return [p._genes for p in self._pop]
+    
     def tell(self,fitnesses,data=None):
+        
         for p in zip(self._pop,fitnesses):
             desc = self._get_descriptor(p[0]._genes)
             p[0]._fitness = p[1]
@@ -432,14 +453,14 @@ class MapElites_Pyribs(ProcessingElementFactory, metaclass=OptMetaClass):
                 elif desc[i] >= self._map_size[i]:
                     desc[i] = self._map_size[i] - 1
             desc = tuple(desc)
-            status, value = self._archive.add(self._counter,p[1],desc,p[0])
+            status, value = self._archive.add_single(desc, p[1], desc, self._counter)
             #print(status, value)
             self._counter += 1
         
         #Visualize archives 
         if max(fitnesses) > self._max_fitness:
             self._max_fitness = max(fitnesses)
-            print("New best at generation: ",self._gen_number-1, " fitness: ",max(fitnesses))
+            print_info("New best at generation: ",self._gen_number-1, " fitness: ",max(fitnesses))
         if self._gen_number%50 == 0 :
             plt.figure(figsize=(8, 6))
             if self._archive_type == "CVT":
@@ -454,4 +475,5 @@ class MapElites_Pyribs(ProcessingElementFactory, metaclass=OptMetaClass):
             plt.xlabel("Depth")
             plt.show()
         self._gen_number += 1
+        
         

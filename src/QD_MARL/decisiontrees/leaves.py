@@ -11,10 +11,11 @@
     :license: MIT, see LICENSE for more details.
 """
 import abc
-import torch
 import numpy as np
 from .nodes import Node
 from copy import deepcopy
+import torch
+from utils.print_outputs import print_debugging
 
 
 class Leaf(Node):
@@ -37,12 +38,11 @@ class Leaf(Node):
 
         :input_: An array of input features
         :returns: A numpy array whose last dimension has the size equal to
-        the dimensionality of the actions and the reference to self
-
+        the dimensionality of the actions
         """
         self._inputs.append(input_)  # Record the input
         # Return an invalid action. The base class cannot compute decisions
-        return np.zeros(1), self
+        return np.zeros(1)
 
     def record_action(self, action):
         """
@@ -85,10 +85,6 @@ from the number of calls to set_reward ({len(self._rewards)}, \
         """
         pass
 
-    @abc.abstractmethod
-    def stop_learning(self):
-        pass
-
     def get_buffers(self):
         """
         Returns 3 lists:
@@ -110,7 +106,7 @@ from the number of calls to set_reward ({len(self._rewards)}, \
         """
         Returns a copy of itself
         """
-        return deepcopy(self)
+        return Leaf()
 
     def get_inputs(self):
         return self._inputs
@@ -142,9 +138,6 @@ class QLearningLeaf(Leaf):
     def __str__(self):
         return f"{np.argmax(self._q)} ({np.sum(self._visits)} visits)"
 
-    def stop_learning(self):
-        self._learning_rate = .0
-
     def _init_q(self, n_actions):
         """
         Initializes the Q function (to zero)
@@ -167,7 +160,7 @@ class QLearningLeaf(Leaf):
         self._last_action = np.argmax(self._q)
         self._visits[self._last_action] += 1
         super().record_action(self._last_action)
-        return self._last_action, self
+        return self._last_action
 
     def set_reward(self, reward):
         """
@@ -214,7 +207,7 @@ class QLearningLeaf(Leaf):
         self._last_action = action
         self._visits[self._last_action] += 1
         super().record_action(self._last_action)
-        return self._last_action, self
+        return self._last_action
 
     def get_n_actions(self):
         """
@@ -235,9 +228,6 @@ class QLearningLeaf(Leaf):
     def get_lr(self):
         return self._learning_rate
 
-    def set_lr(self, lrn):
-        self._learning_rate = lrn
-
     def get_visits(self):
         return self._visits
 
@@ -256,6 +246,12 @@ class QLearningLeaf(Leaf):
         leaf.set_q(self.get_q().copy())
         leaf.set_visits(deepcopy(self.get_visits()))
         return leaf
+    
+    def set_then(self, value):
+        self._then = value
+    
+    def set_else(self, value):
+        self._else = value
 
 
 class QLearningLeafDecorator(QLearningLeaf):
@@ -316,7 +312,7 @@ class QLearningLeafDecorator(QLearningLeaf):
         :returns: A numpy array whose last dimension has the size equal to
         the dimensionality of the actions
         """
-        return self._leaf.get_output(input_)[0], self
+        return self._leaf.get_output(input_)
 
     def set_reward(self, reward):
         """
@@ -350,7 +346,7 @@ class QLearningLeafDecorator(QLearningLeaf):
         :input_: An array of input features
         :action: The action "forced" by someone else
         """
-        return self._leaf.force_action(input_, action)[0], self
+        return self._leaf.force_action(input_, action)
 
     def get_n_actions(self):
         """
@@ -367,15 +363,7 @@ class QLearningLeafDecorator(QLearningLeaf):
         self._leaf.set_q(q)
 
     def get_lr(self):
-        #print("hhhh " + str(self._leaf.get_lr()))
-        return super().get_lr()
-
-    def set_lr(self, lrn):
-        super().set_lr(lrn)
-
-    def stop_learning(self):
-        self._leaf.stop_learning()
-        super().stop_learning()
+        return self._leaf.get_lr()
 
     def get_visits(self):
         return self._leaf.get_visits()
@@ -388,6 +376,38 @@ class QLearningLeafDecorator(QLearningLeaf):
 
     def get_inputs(self):
         return self._leaf.get_inputs()
+    
+    def set_left(self, value):
+        self._leaf.set_left(value)
+        
+    def set_right(self, value):
+        self._leaf.set_right(value)
+        
+    def get_left(self):
+        return self._leaf.get_left()
+    
+    def get_right(self):
+        return self._leaf.get_right()
+    
+    def get_then(self):
+        return self._leaf.get_then()
+    
+    def get_else(self):
+        return self._leaf.get_else()
+    
+    def _then(self, value):
+        self._leaf.set_then(value)
+    
+    def _else(self, value):
+        self._leaf.set_else(value)
+        
+    def set_then(self, value):
+        self._leaf.set_then(value)
+        
+    def set_else(self, value):
+        self._leaf.set_else(value)     
+    
+    
 
 
 class EpsilonGreedyQLearningLeafDecorator(QLearningLeafDecorator):
@@ -423,7 +443,7 @@ class EpsilonGreedyQLearningLeafDecorator(QLearningLeafDecorator):
         """
         self._visits += 1
         if self._epsilon is None:
-            eps = 1 / self._visits
+            eps = 1/self._visits
         else:
             self._epsilon *= self._decay
             eps = max(self._epsilon, self._min_epsilon)
@@ -432,9 +452,9 @@ class EpsilonGreedyQLearningLeafDecorator(QLearningLeafDecorator):
             return self._leaf.force_action(
                 input_,
                 np.random.randint(0, self._leaf.get_n_actions())
-            )[0], self
+            )
         else:
-            return self._leaf.get_output(input_)[0], self
+            return self._leaf.get_output(input_)
 
     def copy(self):
         """
@@ -447,12 +467,6 @@ class EpsilonGreedyQLearningLeafDecorator(QLearningLeafDecorator):
             self._min_epsilon
         )
         return new
-
-    def stop_learning(self):
-        self._epsilon = .0
-        self._decay = 1.
-        self._leaf.stop_learning()
-        super().stop_learning()
 
 
 class RandomInitQLearningLeafDecorator(QLearningLeafDecorator):
@@ -499,9 +513,6 @@ class RandomInitQLearningLeafDecorator(QLearningLeafDecorator):
         new.set_q(self._leaf.get_q())
         return new
 
-    def stop_learning(self):
-        self._leaf.stop_learning()
-        super().stop_learning()
 
 class NoBuffersDecorator(QLearningLeafDecorator):
     """
@@ -527,7 +538,8 @@ class NoBuffersDecorator(QLearningLeafDecorator):
         the dimensionality of the actions
         """
         # Retrieve the output from the leaf
-        out = self._leaf.get_output(input_)[0]
+        out = self._leaf.get_output(input_)
+        
         # Delete the unnecessary elements in the buffers
         # I.e. the ones whose reward has already been set
         inputs, actions, rewards = self._leaf.get_buffers()
@@ -538,7 +550,7 @@ class NoBuffersDecorator(QLearningLeafDecorator):
             del actions[:unnecessary]
             self._leaf.set_buffers(inputs, actions, rewards)
         # return the output of the leaf
-        return out, self
+        return out
 
     def copy(self):
         """
@@ -548,10 +560,8 @@ class NoBuffersDecorator(QLearningLeafDecorator):
             self._leaf.copy()
         )
         return new
+    
 
-    def stop_learning(self):
-        self._leaf.stop_learning()
-        super().stop_learning()
 
 class QLambdaDecorator(QLearningLeafDecorator):
     """
@@ -586,10 +596,10 @@ class QLambdaDecorator(QLearningLeafDecorator):
         :returns: A numpy array whose last dimension has the size equal to
         the dimensionality of the actions
         """
-        output = self._leaf.get_output(input_)[0]
+        output = self._leaf.get_output(input_)
         self._last_action = output
         self._eligibility_traces[self._last_action] += 1
-        return output, self
+        return output
 
     def set_reward(self, reward):
         """
@@ -618,19 +628,10 @@ class QLambdaDecorator(QLearningLeafDecorator):
     def empty_buffers(self):
         self._leaf.empty_buffers()
         self._eligibility_traces = np.zeros(len(self._leaf.get_q()))
-
-    def stop_learning(self):
-        self._leaf.stop_learning()
-        #print("jjjjjjj "+str(self._leaf.get_lr()))
-        super().stop_learning()
-
-    def set_lr(self, new_lr):
-        super().set_lr(new_lr)
-
-    def get_lr(self):
-        return super().get_lr()
-
-
+        
+    def deep_copy(self):
+        return deepcopy(self)
+    
 class QLearningLeafFactory:
     """
     A base class for the factories of leaves.
@@ -643,19 +644,18 @@ class QLearningLeafFactory:
         "QLambda": QLambdaDecorator,
     }
 
-    def __init__(self, **kwargs):
+    def __init__(self, leaf_params, decorators):
         """
         Initializes the factory
 
         :leaf_params: A dictionary containing all the parameters of the leaf
         :decorators: A list of (decorator_name, **params)
         """
-        self._leaf_params = kwargs["leaf_params"]
-        self._decorators = kwargs["decorators"]
-
+        self._leaf_params = leaf_params
+        self._decorators = decorators
         for name, _ in self._decorators:
             assert name in self.DECORATOR_DICT, \
-                f"Unable to find the decorator {name}\n\
+                    f"Unable to find the decorator {name}\n\
                     Available decorators: {self.DECORATOR_DICT.keys()}"
 
     def create(self):
@@ -692,24 +692,11 @@ class ConstantLeaf(Leaf):
     def get_output(self, input_):
         return self._action
 
-    def get_code(self):
-        return f"out={self._action}"
-
     def set_reward(self, input_):
         pass
 
     def get_value(self):
         return 0
-
-    def __repr__(self):
-        return str(self._action)
-
-    def get_trainable_parameters(self):
-        return ["action"]
-
-    def set_params_from_list(self, params):
-        assert isinstance(params[0], int)
-        self._action = params[0]
 
 
 class ConstantLeafFactory():
@@ -717,20 +704,12 @@ class ConstantLeafFactory():
     A Factory for constant leaves
     """
 
-    def __init__(self, n_actions):
-        self._n_actions = n_actions
-
-    def create(self, params=None):
-        #print(str(isinstance(params, int))+" sss "+str(type(params)))
-        if params is None:
-            action = np.random.randint(0, self._n_actions)
-        else:
-            action = params[0] if not isinstance(params, int) else params
+    def create(self, params):
+        action = params[0] if not isinstance(params, int) else params
         return ConstantLeaf(action)
 
     def get_trainable_parameters(self):
         return ["action"]
-
 
 #######################################################################
 #                            Dummy Leaves                             #

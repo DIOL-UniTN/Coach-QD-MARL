@@ -7,6 +7,7 @@ import numpy as np
 import re
 import os
 import string
+from utils.print_outputs import *
 from copy import deepcopy
 from .common import OptMetaClass
 from decisiontrees import Leaf, Condition
@@ -36,7 +37,11 @@ class GPVar(GPExpr):
         self._index = index
 
     def get_output(self, input_):
-        return input_[self._index]
+        if type(input_) == dict:
+            output = list(input_.values())[self._index]
+        else:
+            output = input_[self._index]
+        return output
 
     def __repr__(self):
         return f"input_[{self._index}]"
@@ -198,6 +203,9 @@ class GPNodeIf(Condition):
     def empty_buffers(self):
         self._then.empty_buffers()
         self._else.empty_buffers()
+    
+    def type(self):
+        pass
 
     def copy(self):
         """
@@ -292,7 +300,9 @@ class IndividualGP(Individual):
         
     
     def copy(self):
-        return IndividualGP(self._genes.copy(), self._padding, self._fitness, self._parents,np.copy(self._const),self._const_len)
+        return IndividualGP(self._genes, self._padding, self._fitness, self._parents,np.copy(self._const),self._const_len)
+    def deep_copy(self):
+        return IndividualGP(deepcopy(self._genes), self._padding, self._fitness, self._parents,deepcopy(self._const),self._const_len)
 
     def get_genes_const_nested(self,expr,const_temp):
         fringe = [expr]
@@ -352,3 +362,7 @@ class IndividualGP(Individual):
                 i = self.genes_to_const_nested(cond.get_right(),i)
                 fringe.append(cur.get_then())
                 fringe.append(cur.get_else())
+                
+    def get_output(self, _input):
+        return self._genes.get_output(_input)
+    
