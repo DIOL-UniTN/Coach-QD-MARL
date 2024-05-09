@@ -10,8 +10,11 @@
     :license: MIT, see LICENSE for more details.
 """
 import abc
+<<<<<<< HEAD
 # import torch
 import numpy as np
+=======
+>>>>>>> aca3e01 (merged from private repo)
 from copy import deepcopy
 from .nodes import Node
 
@@ -77,7 +80,11 @@ class Condition(Node):
         :input_: A 1D numpy array
         :returns: A 1D numpy array
         """
+<<<<<<< HEAD
         # assert len(input_.shape) == 1, "Only 1D arrays are currently supported"
+=======
+        assert len(input_.shape) == 1, "Only 1D arrays are currently supported"
+>>>>>>> aca3e01 (merged from private repo)
         if self.get_branch(input_) == Condition.BRANCH_LEFT:
             return self._left.get_output(input_)
         else:
@@ -99,6 +106,7 @@ class Condition(Node):
         self._left.empty_buffers()
         self._right.empty_buffers()
 
+<<<<<<< HEAD
     def copy(self):
         """
         Returns a copy of itself
@@ -106,13 +114,25 @@ class Condition(Node):
         new = Condition(self.get_left().copy(), self.get_right().copy())
         return new
     
+=======
+    def copy_structure(self):
+        """
+        Returns a copy of the structure of itself
+        """
+        new = Condition(self.get_left().copy_structure(), self.get_right().copy_structure())
+        return new
+
+>>>>>>> aca3e01 (merged from private repo)
     def deep_copy(self):
         """
         Returns a deep copy of itself
         """
         return deepcopy(self)
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> aca3e01 (merged from private repo)
 class OrthogonalCondition(Condition):
     """
     This class implements orthogonal conditions for the decision tree.
@@ -131,6 +151,10 @@ class OrthogonalCondition(Condition):
         :right: The right node. Default: None.
         """
         Condition.__init__(self, left, right)
+<<<<<<< HEAD
+=======
+
+>>>>>>> aca3e01 (merged from private repo)
         self._feature_idx = feature_idx
         self._split_value = split_value
 
@@ -147,9 +171,12 @@ class OrthogonalCondition(Condition):
             return inputs[self._feature_idx] < self._split_value
         return inputs[:, self._feature_idx] < self._split_value
 
+<<<<<<< HEAD
     def get_code(self):
         return f"if input_[{self._feature_idx}] < {self._split_value}:"
 
+=======
+>>>>>>> aca3e01 (merged from private repo)
     @staticmethod
     def get_trainable_parameters():
         """
@@ -169,15 +196,25 @@ class OrthogonalCondition(Condition):
         assert len(params) >= 2, \
             "This type of condition requires 2 parameters."
 
+<<<<<<< HEAD
     @classmethod
     def create_from_params(cls, params):
+=======
+    @staticmethod
+    def create_from_params(params):
+>>>>>>> aca3e01 (merged from private repo)
         """
         Creates a condition from its parameters
 
         :params: A list of params (int or float)
         """
+<<<<<<< HEAD
         cls.check_params(params)
         return cls(int(params[0]), float(params[params[0]]))
+=======
+        OrthogonalCondition.check_params(params)
+        return OrthogonalCondition(int(params[0]), float(params[1]))
+>>>>>>> aca3e01 (merged from private repo)
 
     def set_params_from_list(self, params):
         """
@@ -186,9 +223,15 @@ class OrthogonalCondition(Condition):
 
         :params: A list of params (int or float)
         """
+<<<<<<< HEAD
         self.check_params(params)
         self._feature_idx = int(params[0])
         self._split_value = float(params[params[0]])
+=======
+        OrthogonalCondition.check_params(params)
+        self._feature_idx = int(params[0])
+        self._split_value = float(params[1])
+>>>>>>> aca3e01 (merged from private repo)
 
     def get_feature_idx(self):
         return self._feature_idx
@@ -203,6 +246,7 @@ class OrthogonalCondition(Condition):
         self._split_value = value
 
     def __str__(self):
+<<<<<<< HEAD
         return f"x_{self._feature_idx} < {self._split_value}"
 
     def copy(self):
@@ -621,6 +665,28 @@ class ObliqueCondition(Condition):
 #######################################################################
 #                               Factory                               #
 #######################################################################
+=======
+        return f"x_{self._feature_idx} < {round(self._split_value, 1)}"
+        #return f"x_{self._feature_idx} < {self._split_value}" # Original
+
+    def copy_structure(self):
+        """
+        Returns a copy of the structure of itself
+        """
+        new = OrthogonalCondition(
+            self.get_feature_idx(),
+            self.get_split_value(),
+            self.get_left().copy_structure(),
+            self.get_right().copy_structure()
+        )
+        return new
+
+    def deep_copy(self):
+        """
+        Returns a deep copy of itself
+        """
+        return deepcopy(self)
+>>>>>>> aca3e01 (merged from private repo)
 
 
 class ConditionFactory:
@@ -628,6 +694,7 @@ class ConditionFactory:
     A factory for conditions
     """
     ORTHOGONAL = "orthogonal"
+<<<<<<< HEAD
     DIFFERENTIABLE = "differentiable"
     OBLIQUE2 = "2vars"
     OBLIQUE2OFFSET = "2varswoffset"
@@ -642,11 +709,20 @@ class ConditionFactory:
     }
 
     def __init__(self, condition_type="orthogonal", n_inputs=None):
+=======
+
+    CONDITIONS = {
+        ORTHOGONAL: OrthogonalCondition,
+    }
+
+    def __init__(self, condition_type="orthogonal"):
+>>>>>>> aca3e01 (merged from private repo)
         """
         Initializes the factory of conditions
 
         :condition_type: strings supported:
             - orthogonal
+<<<<<<< HEAD
             - differentiable
             - 2vars
             - 2varswoffset
@@ -655,22 +731,35 @@ class ConditionFactory:
         """
         self._condition_type = condition_type
         self._n_inputs = n_inputs if condition_type == "oblique" else None
+=======
+        """
+        self._condition_type = condition_type
+>>>>>>> aca3e01 (merged from private repo)
 
     def create(self, params):
         """
         Creates a condition
         :returns: A Condition
         """
+<<<<<<< HEAD
         cond = self.CONDITIONS[self._condition_type].create_from_params(params)
 
         return cond
+=======
+        return self.CONDITIONS[self._condition_type].create_from_params(params)
+>>>>>>> aca3e01 (merged from private repo)
 
     def get_trainable_parameters(self):
         """
         Returns a list of parameters with their type (int or float).
         """
+<<<<<<< HEAD
 
         param_types = self.CONDITIONS[self._condition_type].get_trainable_parameters()
         if self._condition_type == self.OBLIQUE:
             return (param_types * (self._n_inputs + 1))[:self._n_inputs + 1]
         return param_types
+=======
+        return self.CONDITIONS[self._condition_type].get_trainable_parameters()
+
+>>>>>>> aca3e01 (merged from private repo)

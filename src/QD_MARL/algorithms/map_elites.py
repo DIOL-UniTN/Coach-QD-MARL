@@ -15,7 +15,14 @@ from copy import deepcopy
 from .common import OptMetaClass
 from decisiontrees import Leaf, Condition
 from operator import gt, lt, add, sub, mul
+<<<<<<< HEAD
 from processing_element import ProcessingElementFactory, PEFMetaClass
+=======
+from util_processing_elements.processing_element import (
+    ProcessingElementFactory,
+    PEFMetaClass,
+)
+>>>>>>> aca3e01 (merged from private repo)
 from utils.print_outputs import *
 
 
@@ -232,7 +239,10 @@ class GPNodeIf(Condition):
 class MapElites(ProcessingElementFactory, metaclass=OptMetaClass):
 
     def __init__(self, **kwargs):
+<<<<<<< HEAD
 
+=======
+>>>>>>> aca3e01 (merged from private repo)
         """
         Initializes the algorithm
 
@@ -274,7 +284,13 @@ class MapElites(ProcessingElementFactory, metaclass=OptMetaClass):
         return GPVar(index)
 
     def _random_const(self):
+<<<<<<< HEAD
         index = np.random.uniform(self._bounds["float"]["min"], self._bounds["float"]["max"])
+=======
+        index = np.random.uniform(
+            self._bounds["float"]["min"], self._bounds["float"]["max"]
+        )
+>>>>>>> aca3e01 (merged from private repo)
         return GPConst(index)
 
     def _random_expr(self, depth=0):
@@ -335,10 +351,19 @@ class MapElites(ProcessingElementFactory, metaclass=OptMetaClass):
         max_ = 0
         while len(fringe) > 0:
             d, n = fringe.pop(0)
+<<<<<<< HEAD
             if isinstance(node, Leaf) or \
                     isinstance(node, GPNodeCondition) or \
                     isinstance(node, GPExpr) or \
                     n is None:
+=======
+            if (
+                isinstance(node, Leaf)
+                or isinstance(node, GPNodeCondition)
+                or isinstance(node, GPExpr)
+                or n is None
+            ):
+>>>>>>> aca3e01 (merged from private repo)
                 continue
 
             if d > max_:
@@ -362,7 +387,11 @@ class MapElites(ProcessingElementFactory, metaclass=OptMetaClass):
                 else:
                     fringe.append((d + 1, cur.get_left()))
                     fringe.append((d + 1, cur.get_right()))
+<<<<<<< HEAD
                 #print(d)
+=======
+                # print(d)
+>>>>>>> aca3e01 (merged from private repo)
         return expr
 
     def _count_expr_len(self, expr):
@@ -375,10 +404,16 @@ class MapElites(ProcessingElementFactory, metaclass=OptMetaClass):
                 fringe.append((d + 1, cur.get_left()))
                 fringe.append((d + 1, cur.get_right()))
             if d > max_:
+<<<<<<< HEAD
                 max_=d
         return max_
 
 
+=======
+                max_ = d
+        return max_
+
+>>>>>>> aca3e01 (merged from private repo)
     def _get_cond_depth(self, root):
         """BFS search"""
 
@@ -392,7 +427,11 @@ class MapElites(ProcessingElementFactory, metaclass=OptMetaClass):
                 cond = cur._condition
                 a = self._count_expr_len(cond.get_left())
                 b = self._count_expr_len(cond.get_right())
+<<<<<<< HEAD
                 d = max(a,b )
+=======
+                d = max(a, b)
+>>>>>>> aca3e01 (merged from private repo)
                 max_ = max(d, max_)
                 fringe.append(cur.get_then())
                 fringe.append(cur.get_else())
@@ -491,14 +530,24 @@ class MapElites(ProcessingElementFactory, metaclass=OptMetaClass):
 
         parent = p1nodes[cp1][0]
         old_node = p1nodes[cp1][2]
+<<<<<<< HEAD
         if not isinstance(old_node, GPNodeCondition) or \
                 not isinstance(old_node, GPExpr):
+=======
+        if not isinstance(old_node, GPNodeCondition) or not isinstance(
+            old_node, GPExpr
+        ):
+>>>>>>> aca3e01 (merged from private repo)
             new_node = self._get_random_leaf_or_condition()
         else:
             new_node = self._random_expr()
 
+<<<<<<< HEAD
         if not isinstance(new_node, Leaf) and \
                 not isinstance(new_node, GPExpr):
+=======
+        if not isinstance(new_node, Leaf) and not isinstance(new_node, GPExpr):
+>>>>>>> aca3e01 (merged from private repo)
             if not isinstance(old_node, Leaf):
                 new_node.set_then(old_node.get_left())
                 new_node.set_else(old_node.get_right())
@@ -517,7 +566,10 @@ class MapElites(ProcessingElementFactory, metaclass=OptMetaClass):
         p1 = self._limit_cond_depth(p1)
         return p1
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> aca3e01 (merged from private repo)
     def _crossover(self, par1, par2):
         p1, p2 = par1.copy(), par2.copy()
         cp1 = None
@@ -545,9 +597,17 @@ class MapElites(ProcessingElementFactory, metaclass=OptMetaClass):
         while len(fringe) > 0:
             node = fringe.pop(0)
 
+<<<<<<< HEAD
             if not isinstance(node, Leaf) and \
                not isinstance(node, GPVar) and \
                not isinstance(node, GPConst):
+=======
+            if (
+                not isinstance(node, Leaf)
+                and not isinstance(node, GPVar)
+                and not isinstance(node, GPConst)
+            ):
+>>>>>>> aca3e01 (merged from private repo)
                 fringe.append(node.get_left())
                 fringe.append(node.get_right())
 
@@ -577,6 +637,7 @@ class MapElites(ProcessingElementFactory, metaclass=OptMetaClass):
             p2 = st1
         return p1, p2
 
+<<<<<<< HEAD
 
 
     def _add_to_map(self, ind, fitness, data=None):
@@ -586,6 +647,20 @@ class MapElites(ProcessingElementFactory, metaclass=OptMetaClass):
         print_info(desc)
         print_info(thr)
         desc = [int(desc[i] - min(self._map_bound[i]) / thr[i]) for i in range(len(self._map_size))]
+=======
+    def _add_to_map(self, ind, fitness, data=None):
+        desc = self._get_descriptor(ind)
+        thr = [
+            abs(max(self._map_bound[i]) - min(self._map_bound[i])) / self._map_size[i]
+            for i in range(len(self._map_size))
+        ]
+        print_info(desc)
+        print_info(thr)
+        desc = [
+            int(desc[i] - min(self._map_bound[i]) / thr[i])
+            for i in range(len(self._map_size))
+        ]
+>>>>>>> aca3e01 (merged from private repo)
         print_info(desc)
         print("-----------------")
         for i in range(len(self._map_size)):
@@ -623,7 +698,11 @@ class MapElites(ProcessingElementFactory, metaclass=OptMetaClass):
 
                 # Crossover
                 if p2 is not None:
+<<<<<<< HEAD
                     if  np.random.uniform() < self._cx_prob:
+=======
+                    if np.random.uniform() < self._cx_prob:
+>>>>>>> aca3e01 (merged from private repo)
                         o1, o2 = self._crossover(p1, p2)
                         temp.append(o1)
                         temp.append(o2)
@@ -645,3 +724,12 @@ class MapElites(ProcessingElementFactory, metaclass=OptMetaClass):
         else:
             for p in zip(self._pop, fitnesses, data):
                 self._add_to_map(p[0], p[1], p[2])
+<<<<<<< HEAD
+=======
+
+    def plot_archive(self):
+        """
+        Plots the archive
+        """
+        pass
+>>>>>>> aca3e01 (merged from private repo)

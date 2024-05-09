@@ -9,6 +9,7 @@
     :copyright: (c) 2021 by Leonardo Lucio Custode.
     :license: MIT, see LICENSE for more details.
 """
+<<<<<<< HEAD
 import string
 import numpy as np
 import os
@@ -17,17 +18,42 @@ from datetime import datetime
 from joblib import Parallel, delayed
 from decisiontrees import RLDecisionTree
 from decisiontrees import ConditionFactory, QLearningLeafFactory
+=======
+import os
+import pickle
+import string
+
+# from memory_profiler import profile
+from datetime import datetime
+
+import matplotlib as plt
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import seaborn as sns
+from decisiontrees import ConditionFactory, QLearningLeafFactory, RLDecisionTree
+from joblib import Parallel, delayed
+from .print_outputs import print_debugging
+
+>>>>>>> aca3e01 (merged from private repo)
 
 def get_logdir_name():
     """
     Returns a name for the dir
     :returns: a name in the format dd-mm-yyyy_:mm:ss_<random string>
     """
+<<<<<<< HEAD
     time = datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
     rand_str = "".join(np.random.choice([*string.ascii_lowercase], 8))
     return f"{time}_{rand_str}"
 
 
+=======
+    time = datetime.now().strftime("%d-%m-%Y_%H-%M-%S-%f")
+    rand_str = "".join(np.random.choice([*string.ascii_lowercase], 8))
+    return f"{time}_{rand_str}"
+
+>>>>>>> aca3e01 (merged from private repo)
 def get_map(n_jobs, debug=False):
     """
     Returns a function pointer that implements a parallel map function
@@ -38,24 +64,45 @@ def get_map(n_jobs, debug=False):
 
     """
     if debug:
+<<<<<<< HEAD
+=======
+
+>>>>>>> aca3e01 (merged from private repo)
         def fcn(function, iterable, config):
             ret_vals = []
             for i in iterable:
                 ret_vals.append(function(i, config))
             return ret_vals
+<<<<<<< HEAD
     else:
         def fcn(function, iterable, config):
             with Parallel(n_jobs) as p:
                 return p(delayed(function)(elem, config) for elem in iterable)
+=======
+
+    else:
+
+        def fcn(function, iterable, config):
+            with Parallel(n_jobs) as p:
+                return p(delayed(function)(elem, config) for elem in iterable)
+
+>>>>>>> aca3e01 (merged from private repo)
     return fcn
 
 
 class CircularList(list):
+<<<<<<< HEAD
 
+=======
+>>>>>>> aca3e01 (merged from private repo)
     """
     A list that, when indexed outside its bounds (index i), returns the
     element in position i % len(self)
     """
+<<<<<<< HEAD
+=======
+
+>>>>>>> aca3e01 (merged from private repo)
     def __init__(self, iterable):
         """
         Initializes the list.
@@ -88,9 +135,17 @@ class Grammar(dict):
             circular_dict[k] = CircularList(v)
         dict.__init__(self, circular_dict)
 
+<<<<<<< HEAD
 # PER RIPARAZIONE
 from decisiontrees import Condition
 
+=======
+
+# PER RIPARAZIONE
+from decisiontrees import Condition
+
+
+>>>>>>> aca3e01 (merged from private repo)
 def genotype2phenotype(individual, config):
     """
     Converts a genotype in a phenotype
@@ -104,15 +159,23 @@ def genotype2phenotype(individual, config):
     grammar = Grammar(config["grammar"])
     cfactory = ConditionFactory(config["conditions"]["type"])
     lfactory = QLearningLeafFactory(
+<<<<<<< HEAD
         config["leaves"]["params"],
         config["leaves"]["decorators"]
+=======
+        config["leaves"]["params"], config["leaves"]["decorators"]
+>>>>>>> aca3e01 (merged from private repo)
     )
 
     if grammar["root"][next(gene)] == "condition":
         params = cfactory.get_trainable_parameters()
+<<<<<<< HEAD
         root = cfactory.create(
             [grammar[p][next(gene)] for p in params]
         )
+=======
+        root = cfactory.create([grammar[p][next(gene)] for p in params])
+>>>>>>> aca3e01 (merged from private repo)
     else:
         root = lfactory.create()
         return RLDecisionTree(root, config["training"]["gamma"])
@@ -125,9 +188,13 @@ def genotype2phenotype(individual, config):
             for i, n in enumerate(["left", "right"]):
                 if grammar["root"][next(gene)] == "condition":
                     params = cfactory.get_trainable_parameters()
+<<<<<<< HEAD
                     newnode = cfactory.create(
                         [grammar[p][next(gene)] for p in params]
                     )
+=======
+                    newnode = cfactory.create([grammar[p][next(gene)] for p in params])
+>>>>>>> aca3e01 (merged from private repo)
                     getattr(node, f"set_{n}")(newnode)
                     fringe.insert(i, newnode)
                 else:
@@ -144,7 +211,11 @@ def genotype2phenotype(individual, config):
                     for i, n in enumerate(["left", "right"]):
                         actual_node = getattr(node, f"get_{n}")()
                         if actual_node is None:
+<<<<<<< HEAD
                             #print("INVALIDO")
+=======
+                            # print("INVALIDO")
+>>>>>>> aca3e01 (merged from private repo)
                             actual_node = lfactory.create()
                             getattr(node, f"set_{n}")(actual_node)
                         fringe.insert(i, actual_node)
@@ -166,6 +237,10 @@ def genotype2str(genotype, config):
     """
     pass
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> aca3e01 (merged from private repo)
 def save_tree(tree, log_dir, name):
     if log_dir is not None:
         assert isinstance(tree, RLDecisionTree), "Object passed is not a RLDecisionTree"
@@ -173,9 +248,132 @@ def save_tree(tree, log_dir, name):
         with open(log_file, "wb") as f:
             pickle.dump(tree, f)
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> aca3e01 (merged from private repo)
 def get_tree(log_file):
     tree = None
     if log_file is not None:
         with open(log_file, "rb") as f:
             tree = pickle.load(f)
     return tree
+<<<<<<< HEAD
+=======
+
+def fitnesses_stats(all_fitnesses, team_fitnesses=None):
+    """
+    Computes the statistics of the fitnesses
+
+    :all_fitnesses: A list of fitnesses
+    :team_fitnesse: A dictionary with the fitnesses of the teams
+    :returns: A dictionary with the statistics
+    """
+    stats = {}
+    all_fitnesses = np.array(all_fitnesses)
+    valid = all_fitnesses != -100000
+    stats["min"] = np.min(all_fitnesses)
+    stats["max"] = np.max(all_fitnesses)
+    stats['max_index'] = np.argmax(all_fitnesses)
+    stats["mean"] = np.mean(all_fitnesses)
+    stats["std"] = np.std(all_fitnesses)
+    stats["valid"] = np.sum(valid)
+    stats["invalid"] = len(all_fitnesses) - stats["valid"]
+    if team_fitnesses is not None:
+        team_fitnesses = np.array(team_fitnesses)
+        valid = team_fitnesses != -100000
+        stats["teams"] = {}
+        stats["teams"]["min"] = np.min(team_fitnesses)
+        stats["teams"]["max"] = np.max(team_fitnesses)
+        stats["teams"]['max_index'] = np.argmax(team_fitnesses)
+        stats["teams"]["mean"] = np.mean(team_fitnesses)
+        stats["teams"]["std"] = np.std(team_fitnesses)
+        stats["teams"]["valid"] = np.sum(valid)
+        stats["teams"]["invalid"] = len(team_fitnesses) - stats["teams"]["valid"]
+    return stats
+
+    
+
+def plot_log(log_path=None, file=None, gen=None):
+    # the log file si a csv file with the following format:
+    # <gen> <Min> <Mean> <Max> <Std>
+
+    pop_file = os.path.join(log_path, file)
+    plot_name = pop_file.split("/")[-1].split(".")[0]
+    plot_dir = os.path.join(log_path, "stat_plots")
+    os.makedirs(plot_dir, exist_ok=True)
+    plot_path = os.path.join(plot_dir, f"{plot_name}_{gen}.png")
+    df = pd.read_csv(pop_file)
+    df = df.sort_values(by=["Generation"])
+    figure, ax = plt.subplots()
+    ax.plot(df["Generation"].to_list(), df["Min"].to_list(), label="Min")
+    ax.errorbar(
+        df["Generation"].to_list(),
+        df["Mean"].to_list(),
+        yerr=df["Std"].to_list(),
+        label="Mean",
+        marker="o",
+    )
+    ax.plot(df["Generation"].to_list(), df["Max"].to_list(), label="Max")
+
+    ax.set_xlabel("Generation")
+    ax.set_ylabel("Fitness")
+    ax.set_title("Fitness over generations")
+    ax.legend()
+    ax.grid(True)
+    plt.savefig(plot_path)
+    plt.close(fig=figure)
+    pass
+
+def plot_actions(actions, pid, config):
+    gen = config["generation"]
+    actions_path = os.path.join(config["log_path"], "actions_plt", str(gen), str(pid))
+    os.makedirs(
+        actions_path, exist_ok=True
+    )
+
+    for agent in actions:        
+        # heatmap
+        if 'blue" in agent':
+            action_matrix = np.zeros((len(actions[agent]), 21))
+            count = 0
+            for a in actions[agent]:
+                action_matrix[count, a] += 1
+                count += 1
+
+            action_matrix = action_matrix.T
+            plt.title(f"Heatmap of actions during generation {gen} for {agent} on pid {pid}")
+            sns.heatmap(action_matrix, cmap="YlOrRd", cbar=False)
+            plt.xlabel("Cycles")
+            plt.ylabel("Actions")
+            path = (
+                actions_path
+                + f"/heatmap_actions_{agent}.png"
+            )
+            plt.savefig(path)
+            plt.close()
+            x = np.arange(21)
+            y = np.sum(action_matrix, axis=1)
+
+            plt.title(f"Count of actions during generation {gen} for {agent}")
+            
+            path = (
+                actions_path
+                + f"/log_actions_{agent}.png"
+            )
+            ax = sns.barplot(x=x, y=y, hue=x, dodge=False, palette='husl', legend=False)
+            ax.set(xlabel="Actions", ylabel="Count")
+            ax.bar_label(ax.containers[0])
+            plt.savefig(path)
+            plt.close()
+        del action_matrix
+        
+
+if __name__ == "__main__":
+    log_path = "logs/qd-marl/magent_battlefield/THIS"
+    log_file = "logs/qd-marl/magent_battlefield/THIS/_all_sel_log.csv"
+
+    plot_log(log_path, log_file)
+    
+
+>>>>>>> aca3e01 (merged from private repo)

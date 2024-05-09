@@ -14,7 +14,11 @@ import abc
 import numpy as np
 from .nodes import Node
 from copy import deepcopy
+<<<<<<< HEAD
 import torch
+=======
+# import torch
+>>>>>>> aca3e01 (merged from private repo)
 from utils.print_outputs import print_debugging
 
 
@@ -734,6 +738,7 @@ class DummyLeafFactory():
 
 
 class PPOLeaf(Leaf):
+<<<<<<< HEAD
     """A Leaf that implements PPO for discrete action spaces"""
 
     def __init__(self, n_actions):
@@ -762,6 +767,37 @@ class PPOLeaf(Leaf):
 
     def __str__(self):
         return repr(self)
+=======
+    pass
+#     """A Leaf that implements PPO for discrete action spaces"""
+
+#     def __init__(self, n_actions):
+#         """
+#         Initializes the leaf
+
+#         :n_actions: The number of actions that the leaf can perform
+#         """
+#         Leaf.__init__(self)
+
+#         self._n_actions = n_actions
+#         self.actions = torch.rand(n_actions, requires_grad=True)
+#         self.sm = torch.nn.Softmax()
+
+#     def get_output(self, input_):
+#         return self.sm(self.actions), self
+
+#     def get_params(self):
+#         return self.actions
+
+#     def discretize(self):
+#         return ConstantLeaf(torch.argmax(self.actions).detach().numpy())
+
+#     def __repr__(self):
+#         return str(self.sm(self.actions))
+
+#     def __str__(self):
+#         return repr(self)
+>>>>>>> aca3e01 (merged from private repo)
 
 
 class PPOLeafFactory():

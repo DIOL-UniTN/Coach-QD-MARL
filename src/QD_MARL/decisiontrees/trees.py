@@ -11,17 +11,28 @@
 """
 # import torch
 import numpy as np
+<<<<<<< HEAD
 import torch
+=======
+# import torch
+>>>>>>> aca3e01 (merged from private repo)
 from .nodes import Node
 from collections import deque
 from .conditions import Condition
 from .leaves import Leaf
+<<<<<<< HEAD
 from processing_element import ProcessingElement
 from utils.print_outputs import *
 from algorithms.individuals import IndividualGP
 
 
 
+=======
+from util_processing_elements.processing_element import ProcessingElement
+from utils.print_outputs import *
+from algorithms.individuals import IndividualGP
+from copy import deepcopy
+>>>>>>> aca3e01 (merged from private repo)
 
 class DecisionTree:
     """
@@ -201,8 +212,15 @@ class RLDecisionTree(DecisionTree, ProcessingElement):
         self._rewards.appendleft(reward)
         if len(self._last_leaves) == 2:
             leaf = self._last_leaves.pop()
+<<<<<<< HEAD
             leaf.set_reward(self._rewards.pop() +
                             self._gamma * self._last_leaves[0].get_value())
+=======
+            # print_debugging(type(leaf), type(self._last_leaves), type(self._last_leaves.pop()), self._last_leaves.pop())
+            leaf.set_reward(self._rewards.pop() +
+                            self._gamma * self._last_leaves[0].get_value())
+            # print_debugging(leaf.set_reward(self._rewards.pop() + self._gamma * self._last_leaves[0].get_value()))
+>>>>>>> aca3e01 (merged from private repo)
 
     def set_reward_end_of_episode(self):
         """
@@ -266,8 +284,12 @@ class RLDecisionTree(DecisionTree, ProcessingElement):
         self._init_buffers()
     
     def deep_copy(self):
+<<<<<<< HEAD
         dt = RLDecisionTree(self.get_root().deep_copy(), self._gamma)
         return dt
+=======
+        return deepcopy(self)
+>>>>>>> aca3e01 (merged from private repo)
 
 
 class FastDecisionTree(RLDecisionTree):
@@ -330,6 +352,7 @@ class DifferentiableDecisionTree(RLDecisionTree):
     def discretize(self):
         return RLDecisionTree(self._root.discretize(), 0)
 
+<<<<<<< HEAD
     def get_splits_outputs(self, input_):
         outputs = []
         fringe = [self._root]
@@ -342,6 +365,20 @@ class DifferentiableDecisionTree(RLDecisionTree):
                 fringe.append(cur.get_left())
                 fringe.append(cur.get_right())
         return torch.Tensor(outputs)
+=======
+    # def get_splits_outputs(self, input_):
+    #     outputs = []
+    #     fringe = [self._root]
+
+    #     while len(fringe) > 0:
+    #         cur = fringe.pop(0)
+
+    #         if not isinstance(cur, Leaf):
+    #             outputs.append(cur.get_coefficient(input_))
+    #             fringe.append(cur.get_left())
+    #             fringe.append(cur.get_right())
+    #     return torch.Tensor(outputs)
+>>>>>>> aca3e01 (merged from private repo)
 
     def get_params(self):
         params = []

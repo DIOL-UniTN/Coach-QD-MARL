@@ -13,7 +13,11 @@ import numpy as np
 from typing import List
 from abc import abstractmethod
 from .common import OptMetaClass
+<<<<<<< HEAD
 from processing_element import ProcessingElementFactory, PEFMetaClass
+=======
+from util_processing_elements.processing_element import ProcessingElementFactory, PEFMetaClass
+>>>>>>> aca3e01 (merged from private repo)
 import utils
 
 from decisiontrees import *

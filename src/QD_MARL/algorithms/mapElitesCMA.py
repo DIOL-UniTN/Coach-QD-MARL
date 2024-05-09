@@ -8,7 +8,11 @@ from copy import deepcopy
 from .common import OptMetaClass
 from decisiontrees import Leaf, Condition
 from operator import gt, lt, add, sub, mul
+<<<<<<< HEAD
 from processing_element import ProcessingElementFactory, PEFMetaClass
+=======
+from util_processing_elements.processing_element import ProcessingElementFactory, PEFMetaClass
+>>>>>>> aca3e01 (merged from private repo)
 from ribs.archives._cvt_archive import CVTArchive
 from ribs.archives._grid_archive import GridArchive
 from ribs.archives._sliding_boundaries_archive import SlidingBoundariesArchive

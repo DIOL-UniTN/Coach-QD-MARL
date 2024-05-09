@@ -6,6 +6,7 @@ Author: Leonardo Lucio Custode
 Creation Date: 04-04-2020
 Last modified: mer 6 mag 2020, 16:30:41
 """
+<<<<<<< HEAD
 import os
 import re
 import string
@@ -13,6 +14,15 @@ from abc import abstractmethod
 from typing import List
 
 import numpy as np
+=======
+import re
+import os
+import string
+import numpy as np
+from typing import List
+from abc import abstractmethod
+
+>>>>>>> aca3e01 (merged from private repo)
 
 TAB = " " * 4
 
@@ -408,7 +418,11 @@ class GrammaticalEvolution:
         self._logdir = logdir if logdir is not None else None
         self._init_pop()
         if self._individual_genes_injected is not None:
+<<<<<<< HEAD
             self._inject_individual(self._individual_genes_injected, self._injection_rate)
+=======
+        	self._inject_individual(self._individual_genes_injected, self._injection_rate)
+>>>>>>> aca3e01 (merged from private repo)
         self._old_individuals = [ [] for _ in range(self._sets)]
         self._updated = [False for _ in range(self._sets)]  # To detect the first generation
 
@@ -424,10 +438,17 @@ class GrammaticalEvolution:
         
         # Reshape the genes if necessary
         if (len(individual_genes) < self._genotype_length):
+<<<<<<< HEAD
             # ones because one means leaf
             individual_genes = np.hstack([individual_genes, np.ones(self._genotype_length - len(individual_genes), dtype=int)])
         elif (len(individual_genes) > self._genotype_length):
             individual_genes = individual_genes[:self._genotype_length]
+=======
+        	# ones because one means leaf
+        	individual_genes = np.hstack([individual_genes, np.ones(self._genotype_length - len(individual_genes), dtype=int)])
+        elif (len(individual_genes) > self._genotype_length):
+        	individual_genes = individual_genes[:self._genotype_length]
+>>>>>>> aca3e01 (merged from private repo)
         
         individue_to_inject = Individual(individual_genes, None, None) # Create the individual with the genes injeceted
         for set_ in range(self._sets): # Inject the individual in each set with the same rate

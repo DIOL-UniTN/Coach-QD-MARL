@@ -8,7 +8,11 @@ from copy import deepcopy
 from .common import OptMetaClass
 from decisiontrees import Leaf, Condition
 from operator import gt, lt, add, sub, mul
+<<<<<<< HEAD
 from processing_element import ProcessingElementFactory, PEFMetaClass
+=======
+from util_processing_elements.processing_element import ProcessingElementFactory, PEFMetaClass
+>>>>>>> aca3e01 (merged from private repo)
 from ribs.archives._cvt_archive import CVTArchive
 from ribs.archives._grid_archive import GridArchive
 from ribs.archives._sliding_boundaries_archive import SlidingBoundariesArchive
@@ -166,6 +170,10 @@ class MapElitesCMA_pyRibs(ProcessingElementFactory, metaclass=OptMetaClass):
         ]
         self._id = "".join(np.random.choice([*string.ascii_lowercase], 10))
         self._ge = GrammaticalEvolution(**kwargs["ge_kwargs"])
+<<<<<<< HEAD
+=======
+        self._mutation = UniformMutator(0.1, self._map_bound)
+>>>>>>> aca3e01 (merged from private repo)
         #sigma la metto come parametro passato, o 1 o 0.5
         #moltiplico per 10 parametri passati a CMA 
         #le soluzioni venivano scartate e abbiamo deciso di fare così
@@ -263,7 +271,10 @@ class MapElitesCMA_pyRibs(ProcessingElementFactory, metaclass=OptMetaClass):
 
         for i, (e) in enumerate (self._emitters):
             if archive_flag:
+<<<<<<< HEAD
                 print("INITIALIZING EMITTER",e._id)
+=======
+>>>>>>> aca3e01 (merged from private repo)
                 e.initialize()
             else:
                 start = i*self._batch_pop

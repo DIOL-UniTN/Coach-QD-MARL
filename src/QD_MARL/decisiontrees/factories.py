@@ -11,7 +11,11 @@
     :license: MIT, see LICENSE for more details.
 """
 from algorithms import OptMetaClass
+<<<<<<< HEAD
 from processing_element import ProcessingElementFactory, PEFMetaClass
+=======
+from util_processing_elements.processing_element import ProcessingElementFactory, PEFMetaClass
+>>>>>>> aca3e01 (merged from private repo)
 from decisiontrees import ConditionFactory, QLearningLeafFactory, ConstantLeafFactory, \
         RLDecisionTree
 # TODO: Create a MetaClass for leaves' factories <23-11-21, Leonardo Lucio Custode> #

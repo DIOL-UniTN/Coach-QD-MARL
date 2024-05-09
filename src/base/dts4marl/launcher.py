@@ -1,5 +1,6 @@
 import os
 import sys
+<<<<<<< HEAD
 
 sys.path.append(".")
 import random
@@ -16,6 +17,20 @@ from decisiontreelibrary import (ConditionFactory, QLearningLeafFactory,
 from magent2.environments import battlefield_v5
 
 
+=======
+sys.path.append(".")
+import time
+import utils
+import random
+import pettingzoo
+import numpy as np
+from math import sqrt
+from copy import deepcopy
+from algorithms import grammatical_evolution
+from decisiontreelibrary import QLearningLeafFactory, ConditionFactory, RLDecisionTree
+from magent2.environments import battlefield_v5
+
+>>>>>>> aca3e01 (merged from private repo)
 class Agent:
     def __init__(self, name, squad, set_, tree, manual_policy, to_optimize):
         self._name = name
@@ -49,11 +64,18 @@ class Agent:
 
     def set_reward(self, reward):
         self._tree.set_reward(reward)
+<<<<<<< HEAD
         self._score[-1] = reward
 
     def get_score_statistics(self, params):
         score_values = [score_dict[key] for score_dict in self._score for key in score_dict]
         return getattr(np, f"{params['type']}")(a=score_values, **params['params'])#Can't compare dicts with >
+=======
+        self._score[-1] += reward
+
+    def get_score_statistics(self, params):
+        return getattr(np, f"{params['type']}")(a=self._score, **params['params'])
+>>>>>>> aca3e01 (merged from private repo)
 
     def new_episode(self):
         self._score.append(0)
@@ -69,11 +91,21 @@ def evaluate(trees, config):
     for tree in trees:
         if tree is None:
             return -10**3, None
+<<<<<<< HEAD
 
+=======
+    pid = os.getpid()
+    eval_logs = os.path.join(config["log_path"], "eval_log", str(config['generation']), str(pid))
+    os.makedirs(eval_logs, exist_ok=True)
+>>>>>>> aca3e01 (merged from private repo)
     # Re-import the environments here to avoid problems with parallelization
     import differentObservations
     #from manual_policies import Policies
     import numpy as np
+<<<<<<< HEAD
+=======
+    from magent2.environments import battlefield_v5
+>>>>>>> aca3e01 (merged from private repo)
 
     # Load the function used to computer the features from the observation
     compute_features = getattr(differentObservations, f"compute_features_{config['observation']}")
@@ -84,8 +116,13 @@ def evaluate(trees, config):
     #    policy = Policies(config['manual_policy'])
 
     # Load the environment
+<<<<<<< HEAD
     env = battlefield_v5.env(**config['environment']).unwrapped
     env.reset()#This reset lead to the problem
+=======
+    env = battlefield_v5.env(**config['environment'])
+    env.reset()
+>>>>>>> aca3e01 (merged from private repo)
 
     # Set tree and policy to agents
     agents = {}
@@ -107,6 +144,10 @@ def evaluate(trees, config):
             agents[agent_name] = Agent(agent_name, agent_squad, None, None, policy, False)
 
     # Start the training
+<<<<<<< HEAD
+=======
+    rewards = []  
+>>>>>>> aca3e01 (merged from private repo)
     for i in range(config["training"]["episodes"]):
 
         # Seed the environment
@@ -123,17 +164,29 @@ def evaluate(trees, config):
         
         # tree.empty_buffers()    # NO-BUFFER LEAFS
         # Iterate over all the agents
+<<<<<<< HEAD
         for index, agent_name in enumerate(env.agents):
             actions = {agent: env.action_space(agent).sample() for agent in env.agents}
             obs, rew, done, trunc, _ = env.step(actions)
+=======
+        for index, agent_name in enumerate(env.agent_iter()):
+
+            obs, rew, done, trunc, _ = env.last()
+>>>>>>> aca3e01 (merged from private repo)
 
             agent = agents[agent_name]
 
             if agent.to_optimize():
                 # Register the reward
                 agent.set_reward(rew)
+<<<<<<< HEAD
             
             action = env.action_space(agent_name)
+=======
+                rewards.append(rew)
+            
+            action = None
+>>>>>>> aca3e01 (merged from private repo)
             if not done and not trunc: # if the agent is alive
                 if agent.to_optimize():
                     # compute_features(observation, allies, enemies)
@@ -148,8 +201,13 @@ def evaluate(trees, config):
                         else:
                             action = agent.get_output(compute_features(obs, red_agents, blue_agents))
                     else:
+<<<<<<< HEAD
                         action = env.action_space(agent_name).sample()
                         #action = np.random.randint(21)
+=======
+                        #action = env.action_space(agent_name).sample()
+                        action = np.random.randint(21)
+>>>>>>> aca3e01 (merged from private repo)
             else: # update the number of active agents
                 if agent.get_squad() == 'red':
                     red_agents -= 1
@@ -157,15 +215,35 @@ def evaluate(trees, config):
                     blue_agents -= 1
 
             env.step(action)
+<<<<<<< HEAD
 
     env.close()
 
+=======
+            
+
+    env.close()
+
+    rewards = np.array(rewards)
+    unique, counts = np.unique(rewards, return_counts=True)
+    rewards_dict = dict(zip(unique, counts))
+    
+    # Log the rewards in each episode
+    with open(os.path.join(eval_logs, "log_rewards.txt"), "a") as f:
+        f.write(str(rewards_dict) + "\n") 
+    f.close()
+
+>>>>>>> aca3e01 (merged from private repo)
     scores = []
     actual_trees = []
     for agent_name in agents:
         if agents[agent_name].to_optimize():
             scores.append(agents[agent_name].get_score_statistics(config['statistics']['agent']))
             actual_trees.append(agents[agent_name].get_tree())
+<<<<<<< HEAD
+=======
+
+>>>>>>> aca3e01 (merged from private repo)
     return scores, actual_trees
 
 def produce_tree(config, log_path=None, extra_log=False, debug=False, manual_policy=False):
@@ -238,7 +316,11 @@ def produce_tree(config, log_path=None, extra_log=False, debug=False, manual_pol
     print(f"{'Generation' : <10} {'Set': <10} {'Min': <10} {'Mean': <10} {'Max': <10} {'Std': <10}")
     # Iterate over the generations
     for gen in range(config["training"]["generations"]):
+<<<<<<< HEAD
 
+=======
+        config['generation'] = gen
+>>>>>>> aca3e01 (merged from private repo)
         # Retrive the current population
         pop = ge.ask()
 
@@ -246,10 +328,18 @@ def produce_tree(config, log_path=None, extra_log=False, debug=False, manual_pol
         trees = [map_(utils.genotype2phenotype, pop[i], config) for i in range(number_of_sets)]
         # Form different groups of trees
         squads = [[trees[j][i] for j in range(number_of_sets)] for i in range(config['ge']['pop_size'])]
+<<<<<<< HEAD
         # Compute the fitnesses
         # We need to return the trees in order to retrive the
         #   correct values for the leaves when using the parallelization
         return_values = map_(evaluate, squads, config) #TODO: check if this is correct
+=======
+
+        # Compute the fitnesses
+        # We need to return the trees in order to retrive the
+        #   correct values for the leaves when using the parallelization
+        return_values = map_(evaluate, squads, config)
+>>>>>>> aca3e01 (merged from private repo)
 
         agents_fitness = [ [] for _ in range(number_of_agents)]
         agents_tree = [ [] for _ in range(number_of_agents)]
@@ -318,11 +408,18 @@ def produce_tree(config, log_path=None, extra_log=False, debug=False, manual_pol
     return best
 
 if __name__ == "__main__":
+<<<<<<< HEAD
     import argparse
     import json
     import shutil
 
     import utils
+=======
+    import json
+    import utils
+    import shutil
+    import argparse
+>>>>>>> aca3e01 (merged from private repo)
 
     parser = argparse.ArgumentParser()
     parser.add_argument("config", help="Path of the config file to use")
@@ -333,6 +430,10 @@ if __name__ == "__main__":
 
     # Load the config file
     config = json.load(open(args.config))
+<<<<<<< HEAD
+=======
+
+>>>>>>> aca3e01 (merged from private repo)
     # Set the random seed
     random.seed(args.seed)
     np.random.seed(args.seed)
@@ -340,12 +441,17 @@ if __name__ == "__main__":
     # Setup logging
     logdir_name = utils.get_logdir_name()
     log_path = f"logs/magent_battlefield/{logdir_name}"
+<<<<<<< HEAD
+=======
+    config["log_path"] = log_path
+>>>>>>> aca3e01 (merged from private repo)
     join = lambda x: os.path.join(log_path, x)
 
     os.makedirs(log_path, exist_ok=False)
     shutil.copy(args.config, join("config.json"))
     with open(join("seed.log"), "w") as f:
         f.write(str(args.seed))
+<<<<<<< HEAD
     
     best = produce_tree(config, log_path, args.log, args.debug)
 
@@ -356,3 +462,10 @@ if __name__ == "__main__":
     for index, tree in enumerate(best):
         print(f"\nagent_{index}:\n{tree}")
         logger.info(f"\nagent_{index}:\n{tree}")
+=======
+
+    best = produce_tree(config, log_path, args.log, args.debug)
+
+    for index, tree in enumerate(best):
+        print(f"\nagent_{index}:\n{tree}")
+>>>>>>> aca3e01 (merged from private repo)
