@@ -1,8 +1,0 @@
-run tests:
-  image: python:3
-  script:
-    - pip install numpy
-    - pip install pytest pytest-cov
-    - pytest --cov=. tests
-    - coverage xml
-  coverage: '/TOTAL.*\s+(\d+%)$/'
