@@ -48,6 +48,15 @@ chmod +x script.sh
 ```
 The script will pop different running options, choose the desired option and the project will start running.
 
+## Current project status
+The project is still in development. The current status of the project is to develop the multi-agent reinforcement learning algorithm that uses quality diversity to create the sets of agents to solve a given multi agent task. In particualr the test environment is the [Battlefield Environemnt](https://magent2.farama.org/environments/battlefield/), from [MAgent2](https://magent2.farama.org/index.html) framework mantained by [Farama Foundation](https://farama.org/).
+This are examples of the behavior of the agents at the current stage of the project:
+
+| Team at Training Generation 0 | Team at Training Generation 0 |
+| ------------- | ------------- |
+| ![Alt text](figures/Esercito_Gen_0.gif "Team at Training Generation 0")  | ![Alt text](figures/Esercito_Gen_15.gif "Team at Training Generation 15")  |
+
+
 ## Structure
 The project is structured as follows:
 1. [src](/src): Contains the source code of the project
