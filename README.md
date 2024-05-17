@@ -16,7 +16,17 @@ cd MultiAgent_and_QualityDiversity_ReinforcementLearning
 pip install -r requirements.txt
 ```
 ### Note
-1. The project is developed in python 3.11. It is recommended to use a virtual environment to install the project and its dependencies.
+1. The project is developed in python 3.11. It is recommended to use a virtual environment to install the project and its dependencies:
+```bash
+python3 -m venv pyenv-ma-qd
+source pyenv-ma-qd/bin/activate
+```
+or
+```bash
+python3 -m venv pyenv-ma-qd
+chmod +x script.sh
+./script.sh
+```
 
 2. Magent2 is the test environment of the project. To install it, first is required to clone the project and then install the downloaded repository:
 ```bash
