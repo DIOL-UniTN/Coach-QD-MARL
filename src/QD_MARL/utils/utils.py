@@ -9,16 +9,6 @@
     :copyright: (c) 2021 by Leonardo Lucio Custode.
     :license: MIT, see LICENSE for more details.
 """
-<<<<<<< HEAD
-import string
-import numpy as np
-import os
-import pickle
-from datetime import datetime
-from joblib import Parallel, delayed
-from decisiontrees import RLDecisionTree
-from decisiontrees import ConditionFactory, QLearningLeafFactory
-=======
 import os
 import pickle
 import string
@@ -26,7 +16,8 @@ import string
 # from memory_profiler import profile
 from datetime import datetime
 
-import matplotlib as plt
+import matplotlib 
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -35,25 +26,16 @@ from decisiontrees import ConditionFactory, QLearningLeafFactory, RLDecisionTree
 from joblib import Parallel, delayed
 from .print_outputs import print_debugging
 
->>>>>>> aca3e01 (merged from private repo)
 
 def get_logdir_name():
     """
     Returns a name for the dir
     :returns: a name in the format dd-mm-yyyy_:mm:ss_<random string>
     """
-<<<<<<< HEAD
-    time = datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
-    rand_str = "".join(np.random.choice([*string.ascii_lowercase], 8))
-    return f"{time}_{rand_str}"
-
-
-=======
     time = datetime.now().strftime("%d-%m-%Y_%H-%M-%S-%f")
     rand_str = "".join(np.random.choice([*string.ascii_lowercase], 8))
     return f"{time}_{rand_str}"
 
->>>>>>> aca3e01 (merged from private repo)
 def get_map(n_jobs, debug=False):
     """
     Returns a function pointer that implements a parallel map function
@@ -64,21 +46,12 @@ def get_map(n_jobs, debug=False):
 
     """
     if debug:
-<<<<<<< HEAD
-=======
 
->>>>>>> aca3e01 (merged from private repo)
         def fcn(function, iterable, config):
             ret_vals = []
             for i in iterable:
                 ret_vals.append(function(i, config))
             return ret_vals
-<<<<<<< HEAD
-    else:
-        def fcn(function, iterable, config):
-            with Parallel(n_jobs) as p:
-                return p(delayed(function)(elem, config) for elem in iterable)
-=======
 
     else:
 
@@ -86,23 +59,15 @@ def get_map(n_jobs, debug=False):
             with Parallel(n_jobs) as p:
                 return p(delayed(function)(elem, config) for elem in iterable)
 
->>>>>>> aca3e01 (merged from private repo)
     return fcn
 
 
 class CircularList(list):
-<<<<<<< HEAD
-
-=======
->>>>>>> aca3e01 (merged from private repo)
     """
     A list that, when indexed outside its bounds (index i), returns the
     element in position i % len(self)
     """
-<<<<<<< HEAD
-=======
 
->>>>>>> aca3e01 (merged from private repo)
     def __init__(self, iterable):
         """
         Initializes the list.
@@ -135,17 +100,11 @@ class Grammar(dict):
             circular_dict[k] = CircularList(v)
         dict.__init__(self, circular_dict)
 
-<<<<<<< HEAD
-# PER RIPARAZIONE
-from decisiontrees import Condition
-
-=======
 
 # PER RIPARAZIONE
 from decisiontrees import Condition
 
 
->>>>>>> aca3e01 (merged from private repo)
 def genotype2phenotype(individual, config):
     """
     Converts a genotype in a phenotype
@@ -159,23 +118,12 @@ def genotype2phenotype(individual, config):
     grammar = Grammar(config["grammar"])
     cfactory = ConditionFactory(config["conditions"]["type"])
     lfactory = QLearningLeafFactory(
-<<<<<<< HEAD
-        config["leaves"]["params"],
-        config["leaves"]["decorators"]
-=======
         config["leaves"]["params"], config["leaves"]["decorators"]
->>>>>>> aca3e01 (merged from private repo)
     )
 
     if grammar["root"][next(gene)] == "condition":
         params = cfactory.get_trainable_parameters()
-<<<<<<< HEAD
-        root = cfactory.create(
-            [grammar[p][next(gene)] for p in params]
-        )
-=======
         root = cfactory.create([grammar[p][next(gene)] for p in params])
->>>>>>> aca3e01 (merged from private repo)
     else:
         root = lfactory.create()
         return RLDecisionTree(root, config["training"]["gamma"])
@@ -188,13 +136,7 @@ def genotype2phenotype(individual, config):
             for i, n in enumerate(["left", "right"]):
                 if grammar["root"][next(gene)] == "condition":
                     params = cfactory.get_trainable_parameters()
-<<<<<<< HEAD
-                    newnode = cfactory.create(
-                        [grammar[p][next(gene)] for p in params]
-                    )
-=======
                     newnode = cfactory.create([grammar[p][next(gene)] for p in params])
->>>>>>> aca3e01 (merged from private repo)
                     getattr(node, f"set_{n}")(newnode)
                     fringe.insert(i, newnode)
                 else:
@@ -211,11 +153,7 @@ def genotype2phenotype(individual, config):
                     for i, n in enumerate(["left", "right"]):
                         actual_node = getattr(node, f"get_{n}")()
                         if actual_node is None:
-<<<<<<< HEAD
-                            #print("INVALIDO")
-=======
                             # print("INVALIDO")
->>>>>>> aca3e01 (merged from private repo)
                             actual_node = lfactory.create()
                             getattr(node, f"set_{n}")(actual_node)
                         fringe.insert(i, actual_node)
@@ -237,10 +175,7 @@ def genotype2str(genotype, config):
     """
     pass
 
-<<<<<<< HEAD
-=======
 
->>>>>>> aca3e01 (merged from private repo)
 def save_tree(tree, log_dir, name):
     if log_dir is not None:
         assert isinstance(tree, RLDecisionTree), "Object passed is not a RLDecisionTree"
@@ -248,18 +183,13 @@ def save_tree(tree, log_dir, name):
         with open(log_file, "wb") as f:
             pickle.dump(tree, f)
 
-<<<<<<< HEAD
-=======
 
->>>>>>> aca3e01 (merged from private repo)
 def get_tree(log_file):
     tree = None
     if log_file is not None:
         with open(log_file, "rb") as f:
             tree = pickle.load(f)
     return tree
-<<<<<<< HEAD
-=======
 
 def fitnesses_stats(all_fitnesses, team_fitnesses=None):
     """
@@ -292,16 +222,20 @@ def fitnesses_stats(all_fitnesses, team_fitnesses=None):
         stats["teams"]["invalid"] = len(team_fitnesses) - stats["teams"]["valid"]
     return stats
 
-    
+def remove_previous_files(path):
+    for file in os.listdir(path):
+        f = os.path.join(path, file)
+        os.remove(f)
 
-def plot_log(log_path=None, file=None, gen=None):
+def plot_log(log_path=None, output_path=None, plot_name= "", file=None, gen=None):
     # the log file si a csv file with the following format:
     # <gen> <Min> <Mean> <Max> <Std>
 
     pop_file = os.path.join(log_path, file)
     plot_name = pop_file.split("/")[-1].split(".")[0]
-    plot_dir = os.path.join(log_path, "stat_plots")
+    plot_dir = os.path.join(output_path, plot_name)
     os.makedirs(plot_dir, exist_ok=True)
+    remove_previous_files(plot_dir)
     plot_path = os.path.join(plot_dir, f"{plot_name}_{gen}.png")
     df = pd.read_csv(pop_file)
     df = df.sort_values(by=["Generation"])
@@ -376,4 +310,3 @@ if __name__ == "__main__":
     plot_log(log_path, log_file)
     
 
->>>>>>> aca3e01 (merged from private repo)

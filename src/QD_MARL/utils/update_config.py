@@ -25,7 +25,7 @@ for file_name in config["files_names"]:
         raise ValueError("Unknown ME type")
     # Save the new configs in a JSON file
     if new_configs['hpc'] == True:
-        new_config_file = os.path.join("src/QD_MARL/configs/hpc",file_name)
+        new_config_file = os.path.join("src/QD_MARL/configs/hpc/single_me",file_name)
     else:
         new_config_file = os.path.join("src/QD_MARL/configs/local","test_config.json")
     with open(new_config_file, "w") as f:

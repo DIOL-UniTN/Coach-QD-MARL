@@ -14,9 +14,7 @@ import pettingzoo
 import training.differentObservations as differentObservations
 from agents.agents import *
 from algorithms import (
-    grammatical_evolution,
     individuals,
-    map_elites,
     map_elites_Pyribs,
     mapElitesCMA_pyRibs,
 )
@@ -33,51 +31,54 @@ from utils import *
 
 
 def evaluate(trees, config):
-    # FOR LOGGING
-    # Getting the pid as it is in a parallel process
-    # Create the log folder
-    pid = os.getpid()
-    eval_logs = os.path.join(config["log_path"], "eval_log", str(config['generation']), str(pid))
-    os.makedirs(eval_logs, exist_ok=True)
     
-    # Starting training and evaluation process
-    compute_features = getattr(
-        differentObservations, f"compute_features_{config['observation']}"
-    )
+    # Check whether the phenotype is valid
+    for tree in trees:
+        if tree is None:
+            return -10**3, None
+    tot_logs = os.path.join(config["log_path"], "eval_log", str(config['generation']))
+    os.makedirs(tot_logs, exist_ok=True)
+    # Re-import the environments here to avoid problems with parallelization
+    import training.differentObservations as differentObservations
+    #from manual_policies import Policies
+    import numpy as np
+    from magent2.environments import battlefield_v5
+    # Load the function used to computer the features from the observation
+    compute_features = getattr(differentObservations, f"compute_features_{config['observation']}")
+
+    # Load manual policy if present
     policy = None
-    # Setup the agents
+    #if config['manual_policy']:
+    #    policy = Policies(config['manual_policy'])
+
+    # Load the environment
+    env = battlefield_v5.env(**config['environment'])
+    env.reset()
+
+    # Set tree and policy to agents
     agents = {}
-    actions = {}
-    env = battlefield_v5.env(**config["environment"])
-    env.reset()  # This reset lead to the problem
     for agent_name in env.agents:
         agent_squad = "_".join(agent_name.split("_")[:-1])
         if agent_squad == config["team_to_optimize"]:
             agent_number = int("_".join(agent_name.split("_")[1]))
+            index = agent_number - 1
+        # This is to handle the case in which the agents are divided in sets
+        # used for the baseline experiments
+            if "sets" in config:
+                for set_index in range(len(config["sets"])):
+                    if agent_number in config["sets"][set_index]:
+                        index = set_index
 
-            # Search the index of the set in which the agent belongs
-            set_ = 0
-            for set_index in range(len(config["sets"])):
-                if agent_number in config["sets"][set_index]:
-                    set_ = set_index
-
-            # Initialize training agent
-            agents[agent_name] = Agent(
-                agent_name, agent_squad, set_, trees[set_], None, True
-            )
+            # Initialize trining agent
+            agents[agent_name] = Agent(agent_name, agent_squad, None, trees[index], None, True)
         else:
             # Initialize random or policy agent
-            agents[agent_name] = Agent(
-                agent_name, agent_squad, None, None, policy, False
-            )
+            agents[agent_name] = Agent(agent_name, agent_squad, None, None, policy, False)
 
-    for agent_name in agents:
-        actions[agent_name] = []
-    
-    rewards = []  
+    # Start the training
+    kills = []
     for i in range(config["training"]["episodes"]):
-        red_done = 0
-        blue_done = 0
+        kills.append(0)
         # Seed the environment
         env.reset(seed=i)
         np.random.seed(i)
@@ -89,10 +90,11 @@ def evaluate(trees, config):
                 agents[agent_name].new_episode()
         red_agents = 12
         blue_agents = 12
+        
         # tree.empty_buffers()    # NO-BUFFER LEAFS
         # Iterate over all the agents
         for index, agent_name in enumerate(env.agent_iter()):
-            
+
             obs, rew, done, trunc, _ = env.last()
 
             agent = agents[agent_name]
@@ -100,68 +102,47 @@ def evaluate(trees, config):
             if agent.to_optimize():
                 # Register the reward
                 agent.set_reward(rew)
-                # print_configs(f"Agent {agent_name} reward: {rew}")
-                rewards.append(rew)
-
+            
             action = None
-            if not done and not trunc:  # if the agent is alive
+            if not done and not trunc: # if the agent is alive
                 if agent.to_optimize():
                     # compute_features(observation, allies, enemies)
-                    if agent.get_squad() == "blue":
-                        action = agent.get_output(
-                            compute_features(obs, blue_agents, red_agents)
-                        )
-                        if action is None:
-                            print("None action")
-                            print_debugging(type(agent.get_tree()))
+                    if agent.get_squad() == 'blue':
+                        action = agent.get_output(compute_features(obs, blue_agents, red_agents))
                     else:
-                        action = agent.get_output(
-                            compute_features(obs, red_agents, blue_agents)
-                        )
+                        action = agent.get_output(compute_features(obs, red_agents, blue_agents))
                 else:
                     if agent.has_policy():
-                        if agent.get_squad() == "blue":
-                            action = agent.get_output(
-                                compute_features(obs, blue_agents, red_agents)
-                            )
+                        if agent.get_squad() == 'blue':
+                            action = agent.get_output(compute_features(obs, blue_agents, red_agents))
                         else:
-                            action = agent.get_output(
-                                compute_features(obs, red_agents, blue_agents)
-                            )
+                            action = agent.get_output(compute_features(obs, red_agents, blue_agents))
                     else:
-                        # action = env.action_space(agent_name).sample()
+                        #action = env.action_space(agent_name).sample()
                         action = np.random.randint(21)
-            else:  # update the number of active agents
-                if agent.get_squad() == "red":
+            else: # update the number of active agents
+                if agent.get_squad() == 'red':
                     red_agents -= 1
+                    if done:
+                        kills[-1] += 1
                 else:
                     blue_agents -= 1
-            env.step(action)
-            # actions[agent_name].append(action)
 
-        # Log the number of kill per in each episode
-        # with open(os.path.join(eval_logs,"log_n_kills.txt"), "a") as f:
-        #     f.write("Episode: " + str(i)+ " red: " + str(red_done) + " blue: " + str(blue_done) + "\n")
-        # f.close()
+            env.step(action)
     env.close()
-    # plot_actions(actions, pid, config)
-    # rewards count
-    rewards = np.array(rewards)
-    unique, counts = np.unique(rewards, return_counts=True)
-    rewards_dict = dict(zip(unique, counts))
-    
+    tot_kills = np.sum(kills)
+    kills.insert(0,tot_kills)
     # Log the rewards in each episode
-    with open(os.path.join(eval_logs, "log_rewards.txt"), "a") as f:
-        f.write(str(rewards_dict) + "\n") 
+    with open(os.path.join(tot_logs, "log_rewards.txt"), "a") as f:
+        f.write(str(kills) + "\n")
     f.close()
 
-    # Compute the statistics and scores for each agent(Decision Tree)
+
     scores = []
     actual_trees = []
     for agent_name in agents:
         if agents[agent_name].to_optimize():
-            scores.append(
-                agents[agent_name].get_score_statistics(config["statistics"]["agent"])
-            )
+            scores.append(agents[agent_name].get_score_statistics(config['statistics']['agent']))
             actual_trees.append(agents[agent_name].get_tree())
+
     return scores, actual_trees

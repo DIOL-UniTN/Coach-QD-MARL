@@ -13,15 +13,11 @@ import os
 import cv2
 import pickle
 import numpy as np
-<<<<<<< HEAD
-from processing_element import ProcessingElement, ProcessingElementFactory, PEFMetaClass
-=======
 from .processing_element import (
     ProcessingElement,
     ProcessingElementFactory,
     PEFMetaClass,
 )
->>>>>>> aca3e01 (merged from private repo)
 
 
 class UtilMetaClass(type):
@@ -82,10 +78,6 @@ class Resizer(ProcessingElement, metaclass=UtilMetaClass):
 
 
 class MoveDim(ProcessingElement, metaclass=UtilMetaClass):
-<<<<<<< HEAD
-
-=======
->>>>>>> aca3e01 (merged from private repo)
     """
     This processing element moves the dimensions in an tensor
     """
@@ -174,10 +166,6 @@ class Cropper(ProcessingElement, metaclass=UtilMetaClass):
 
 
 class MinMaxNormalizer(ProcessingElement, metaclass=UtilMetaClass):
-<<<<<<< HEAD
-
-=======
->>>>>>> aca3e01 (merged from private repo)
     """
     This processing element normalizes all the elements by using
     min-max normalization.
@@ -270,13 +258,7 @@ class LinearModel(ProcessingElement, metaclass=UtilMetaClass):
         files = list(map(lambda f: os.path.join(predictors_path, f), files))
 
         for p in files:
-<<<<<<< HEAD
-            self._predictors.append(
-                pickle.load(open(p, "rb"))
-            )
-=======
             self._predictors.append(pickle.load(open(p, "rb")))
->>>>>>> aca3e01 (merged from private repo)
         self._window_size = window_size
         self._memory = [[] for _ in range(len(predictors_path))]
 

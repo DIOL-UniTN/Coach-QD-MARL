@@ -6,6 +6,8 @@
                    "battlefield_hpc_pyribsCMA_best.json",
                    "battlefield_hpc_pyribsCMA_coach.json"],
     "template":{
+            "experiment":"me-single_me",
+            "experiments_list":["me-one_tree_per_team", "me-single_me", "me-me_per_team"],
             "hpc": true,
             "environment": {
                 "map_size": 80,
@@ -21,7 +23,7 @@
             "training": {
                 "gamma": 0.9,
                 "episodes": 400,
-                "jobs": 12,
+                "jobs": 60,
                 "generations": 60
             },
             "statistics": {
@@ -34,13 +36,10 @@
                     "params": {}
                 }
             },
-            "sets": "random",
             "team_to_optimize": "blue",
             "observation": "34_new",
-            "manual_policy": null,
-        
+            "manual_policy": null,        
             "n_agents": 12,
-            "n_sets": 1,
         
             "me_config":{
                 "me":{
@@ -51,23 +50,27 @@
                         "me_type": "MapElitesCMA_pyRibs",
                         "selection_type": "random",
                         "seed": 5,
-                        "map_size": [5, 5],
+                        "map_size": [10, 10],
                         "cx_prob": 0.4,
                         "init_pop_size": 120,
-                        "map_bounds": [[0, 5], [0, 5]],
+                        "map_bounds": [[0, 10], [0, 10]],
                         "batch_pop": 12,
                         "maximize": "True",
                         "restart_rule": 1,
                         "archive": "Grid",
                         "solution_dim": 2,
-                        "bins": 50,
-                        "sliding_bins": [6, 4],
                         "emitters": 2,
                         "sigma0": 1,
                         "coach": {
                             "name": "Coach Battlefield v5",
                             "seed": 5,
-                            "algorithm": "EvolutionaryComputation"
+                            "algorithm": "EvolutionaryComputation", 
+                            "statistics":{
+                                "team": {
+                                    "type": "quantile",
+                                    "params": {"q": 0.7, "method": "midpoint"}
+                                }
+                            }
                         },
                         "bounds": {
                             "float": {
@@ -84,10 +87,15 @@
                                 "type": "int",
                                 "min": 0,
                                 "max": 21
+                            },
+                            "entropy": {
+                                "type": "float",
+                                "min": 0.8,
+                                "max": 1.0
                             }
                         },
-                        "max_depth": 5,
-                        "cond_depth": 5,
+                        "max_depth": 10,
+                        "cond_depth": 10,
                         "generations": 10,
                         "logdir": "logs/"
                         }

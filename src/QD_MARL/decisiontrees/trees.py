@@ -9,30 +9,12 @@
     :copyright: (c) 2021 by Leonardo Lucio Custode.
     :license: MIT, see LICENSE for more details.
 """
-# import torch
-import numpy as np
-<<<<<<< HEAD
-import torch
-=======
-# import torch
->>>>>>> aca3e01 (merged from private repo)
 from .nodes import Node
+from .leaves import Leaf
 from collections import deque
 from .conditions import Condition
-from .leaves import Leaf
-<<<<<<< HEAD
-from processing_element import ProcessingElement
-from utils.print_outputs import *
-from algorithms.individuals import IndividualGP
-
-
-
-=======
-from util_processing_elements.processing_element import ProcessingElement
-from utils.print_outputs import *
-from algorithms.individuals import IndividualGP
 from copy import deepcopy
->>>>>>> aca3e01 (merged from private repo)
+
 
 class DecisionTree:
     """
@@ -63,25 +45,13 @@ class DecisionTree:
                     dimensionality of the output space
 
         """
-        if not hasattr(input_[0], "shape") or len(input_.shape) == 1:
-            # 1D input, list
-            return self._root.get_output(input_)
-        else:
-            # ndarray
-            output = []
-            for x in input_:
-                output.append(self._root.get_output(x))
-            output = np.array(output)
-            return output
+        return self._root.get_output(input_)
 
     def empty_buffers(self):
         """
         Resets the buffers of all the nodes in the tree
         """
         self._root.empty_buffers()
-
-    def new_episode(self):
-        pass
 
     def get_leaves(self):
         """
@@ -128,8 +98,10 @@ class DecisionTree:
     def __repr__(self):
         fringe = [(self._root, None)]
         string = ""
+
         while len(fringe) > 0:
             cur, par = fringe.pop(0)
+
             string += f"{id(cur)} [{str(cur)}]\n"
             if par is not None:
                 branch = "True" if par.get_left() is cur else "False"
@@ -137,6 +109,7 @@ class DecisionTree:
             if not isinstance(cur, Leaf):
                 fringe.append((cur.get_left(), cur))
                 fringe.append((cur.get_right(), cur))
+
         return string
 
     def __str__(self):
@@ -148,9 +121,15 @@ class DecisionTree:
         """
         dt = DecisionTree(self.get_root().copy())
         return dt
+    
+    def deep_copy(self):
+        """
+        Returns a deep copy
+        """
+        return deepcopy(self)
 
 
-class RLDecisionTree(DecisionTree, ProcessingElement):
+class RLDecisionTree(DecisionTree):
     """
     A Decision tree that can perform RL task
     """
@@ -162,13 +141,8 @@ class RLDecisionTree(DecisionTree, ProcessingElement):
         :root: The root of the tree
         :gamma: The discount factor
         """
-        
-
         DecisionTree.__init__(self, root)
         self._gamma = gamma
-        self._init_buffers()
-
-    def _init_buffers(self):
         self._last_leaves = deque(maxlen=2)
         self._rewards = deque(maxlen=2)
 
@@ -180,17 +154,10 @@ class RLDecisionTree(DecisionTree, ProcessingElement):
         :returns: A numpy array, with size equal to the
                     dimensionality of the output space
         """
-        # decision = self._root
-        # self._last_leaves.appendleft(decision)
-        # decision  = self._root.get_output(input_)
-        
-        
         decision = self._root
-        while isinstance(decision, Node) or isinstance(decision, IndividualGP):
+        while isinstance(decision, Node):
             if isinstance(decision, Leaf):
                 self._last_leaves.appendleft(decision)
-                decision = decision.get_output(input_)
-            elif isinstance(decision, IndividualGP):
                 decision = decision.get_output(input_)
             else:
                 branch = decision.get_branch(input_)
@@ -199,28 +166,22 @@ class RLDecisionTree(DecisionTree, ProcessingElement):
                 else:
                     decision = decision.get_right()
         return decision
-        
 
-    def set_reward(self, reward): #TODO fix set rewards and why is called in DecisionTree
+    def set_reward(self, reward):
         """
         Gives a reward to the tree.
         NOTE: this method stores the last reward and makes
         the tree "learn" the penultimate reward.
+        To make the tree "learn" from the last reward, use
+        set_reward_end_of_episode().
 
         :reward: The reward obtained by the environment
         """
         self._rewards.appendleft(reward)
         if len(self._last_leaves) == 2:
             leaf = self._last_leaves.pop()
-<<<<<<< HEAD
             leaf.set_reward(self._rewards.pop() +
                             self._gamma * self._last_leaves[0].get_value())
-=======
-            # print_debugging(type(leaf), type(self._last_leaves), type(self._last_leaves.pop()), self._last_leaves.pop())
-            leaf.set_reward(self._rewards.pop() +
-                            self._gamma * self._last_leaves[0].get_value())
-            # print_debugging(leaf.set_reward(self._rewards.pop() + self._gamma * self._last_leaves[0].get_value()))
->>>>>>> aca3e01 (merged from private repo)
 
     def set_reward_end_of_episode(self):
         """
@@ -260,135 +221,15 @@ class RLDecisionTree(DecisionTree, ProcessingElement):
                     decision = decision.get_right()
         return action
     
-    def stop_learning(self):
-        fringe = [self._root]
-        while len(fringe) > 0:
-            node = fringe.pop(0)
-            if isinstance(node, Leaf):
-                node.stop_learning()
-            else:
-                fringe.append(node.get_left())
-                fringe.append(node.get_right())
-        #leaves = self.get_leaves()
-        #for leaf in leaves:
-        #    print(leaf.get_lr())
-
-
-
-    def new_episode(self):
+    def copy_structure(self):
         """
-        Tells the tree that a new episode has begun
+        Returns a copy of the structure
         """
-        if len(self._last_leaves) > 0:
-            self.set_reward_end_of_episode()
-        self._init_buffers()
-    
-    def deep_copy(self):
-<<<<<<< HEAD
-        dt = RLDecisionTree(self.get_root().deep_copy(), self._gamma)
+        dt = RLDecisionTree(self.get_root().copy_structure(), self._gamma)
         return dt
-=======
+
+    def deep_copy(self):
+        """
+        Returns a deep copy
+        """
         return deepcopy(self)
->>>>>>> aca3e01 (merged from private repo)
-
-
-class FastDecisionTree(RLDecisionTree):
-
-    """A quick decision tree for constant leaves"""
-
-    def __init__(self, root):
-        """
-        Initializes the tree
-        :root: A Node, the root of the tree
-        """
-        RLDecisionTree.__init__(self, root, 0)
-        self._root = root
-
-        self._code = self._make_code(root)
-        self.exec_ = compile(self._code, "<string>", "exec", optimize=2)
-        self._globals = {"out": None}
-
-    def _make_code(self, root):
-        code = self._make_code_recursive(root, 0)
-        return code
-
-    def _make_code_recursive(self, root, offset):
-        current_line = " " * offset + root.get_code() + "\n"
-        if not isinstance(root, Leaf):
-            current_line += self._make_code_recursive(root.get_left(), offset + 4)
-            current_line += " " * offset + "else:\n"
-            current_line += self._make_code_recursive(root.get_right(), offset + 4)
-        return current_line
-
-    def get_output(self, input_):
-        self._globals["input_"] = input_
-        exec(self.exec_, self._globals)
-        return self._globals["out"]
-
-
-#######################################################################
-#                         Differentiable DTs                          #
-#######################################################################
-
-
-class DifferentiableDecisionTree(RLDecisionTree):
-
-    """ A differentiable decision tree like the ones used in Silva et al.,
-    'Optimization Methods for Interpretable Differentiable Decision Trees Applied to Reinforcement Learning'
-    """
-
-    def __init__(self, root):
-        """
-        Initializes the decision tree
-
-        :root: A differentiable condition or a differentiable leaf
-        """
-        self._root = root
-
-    def get_output(self, input_):
-        output_prob = self._root.get_output(input_)
-        return output_prob
-
-    def discretize(self):
-        return RLDecisionTree(self._root.discretize(), 0)
-
-<<<<<<< HEAD
-    def get_splits_outputs(self, input_):
-        outputs = []
-        fringe = [self._root]
-
-        while len(fringe) > 0:
-            cur = fringe.pop(0)
-
-            if not isinstance(cur, Leaf):
-                outputs.append(cur.get_coefficient(input_))
-                fringe.append(cur.get_left())
-                fringe.append(cur.get_right())
-        return torch.Tensor(outputs)
-=======
-    # def get_splits_outputs(self, input_):
-    #     outputs = []
-    #     fringe = [self._root]
-
-    #     while len(fringe) > 0:
-    #         cur = fringe.pop(0)
-
-    #         if not isinstance(cur, Leaf):
-    #             outputs.append(cur.get_coefficient(input_))
-    #             fringe.append(cur.get_left())
-    #             fringe.append(cur.get_right())
-    #     return torch.Tensor(outputs)
->>>>>>> aca3e01 (merged from private repo)
-
-    def get_params(self):
-        params = []
-        fringe = [self._root]
-
-        while len(fringe) > 0:
-            cur = fringe.pop(0)
-            params.append(cur.get_params())
-
-            if not isinstance(cur, Leaf):
-                fringe.append(cur.get_left())
-                fringe.append(cur.get_right())
-        return params

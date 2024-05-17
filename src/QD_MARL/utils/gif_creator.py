@@ -8,7 +8,7 @@ def gif_creator(path):
     images = [Image.open(os.path.join(path, f)) for f in filenames]
     frames = images[0]
     output_file = os.path.join(path, 'output.gif')
-    frames.save(output_file, format='GIF', append_images=images, save_all=True, duration=400, loop=0)
+    frames.save(output_file, format='GIF', append_images=images, save_all=True, duration=750, loop=0)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

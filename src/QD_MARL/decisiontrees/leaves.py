@@ -14,12 +14,6 @@ import abc
 import numpy as np
 from .nodes import Node
 from copy import deepcopy
-<<<<<<< HEAD
-import torch
-=======
-# import torch
->>>>>>> aca3e01 (merged from private repo)
-from utils.print_outputs import print_debugging
 
 
 class Leaf(Node):
@@ -250,12 +244,6 @@ class QLearningLeaf(Leaf):
         leaf.set_q(self.get_q().copy())
         leaf.set_visits(deepcopy(self.get_visits()))
         return leaf
-    
-    def set_then(self, value):
-        self._then = value
-    
-    def set_else(self, value):
-        self._else = value
 
 
 class QLearningLeafDecorator(QLearningLeaf):
@@ -380,38 +368,6 @@ class QLearningLeafDecorator(QLearningLeaf):
 
     def get_inputs(self):
         return self._leaf.get_inputs()
-    
-    def set_left(self, value):
-        self._leaf.set_left(value)
-        
-    def set_right(self, value):
-        self._leaf.set_right(value)
-        
-    def get_left(self):
-        return self._leaf.get_left()
-    
-    def get_right(self):
-        return self._leaf.get_right()
-    
-    def get_then(self):
-        return self._leaf.get_then()
-    
-    def get_else(self):
-        return self._leaf.get_else()
-    
-    def _then(self, value):
-        self._leaf.set_then(value)
-    
-    def _else(self, value):
-        self._leaf.set_else(value)
-        
-    def set_then(self, value):
-        self._leaf.set_then(value)
-        
-    def set_else(self, value):
-        self._leaf.set_else(value)     
-    
-    
 
 
 class EpsilonGreedyQLearningLeafDecorator(QLearningLeafDecorator):
@@ -543,7 +499,6 @@ class NoBuffersDecorator(QLearningLeafDecorator):
         """
         # Retrieve the output from the leaf
         out = self._leaf.get_output(input_)
-        
         # Delete the unnecessary elements in the buffers
         # I.e. the ones whose reward has already been set
         inputs, actions, rewards = self._leaf.get_buffers()
@@ -564,7 +519,6 @@ class NoBuffersDecorator(QLearningLeafDecorator):
             self._leaf.copy()
         )
         return new
-    
 
 
 class QLambdaDecorator(QLearningLeafDecorator):
@@ -632,10 +586,8 @@ class QLambdaDecorator(QLearningLeafDecorator):
     def empty_buffers(self):
         self._leaf.empty_buffers()
         self._eligibility_traces = np.zeros(len(self._leaf.get_q()))
-        
-    def deep_copy(self):
-        return deepcopy(self)
-    
+
+
 class QLearningLeafFactory:
     """
     A base class for the factories of leaves.
@@ -714,102 +666,3 @@ class ConstantLeafFactory():
 
     def get_trainable_parameters(self):
         return ["action"]
-
-#######################################################################
-#                            Dummy Leaves                             #
-#######################################################################
-
-
-class DummyLeafFactory():
-    """
-    A Factory for dummy leaves
-    """
-
-    def create(self):
-        return Leaf()
-
-    def get_trainable_parameters(self):
-        return []
-
-
-#######################################################################
-#                        Differentiable Leaves                        #
-#######################################################################
-
-
-class PPOLeaf(Leaf):
-<<<<<<< HEAD
-    """A Leaf that implements PPO for discrete action spaces"""
-
-    def __init__(self, n_actions):
-        """
-        Initializes the leaf
-
-        :n_actions: The number of actions that the leaf can perform
-        """
-        Leaf.__init__(self)
-
-        self._n_actions = n_actions
-        self.actions = torch.rand(n_actions, requires_grad=True)
-        self.sm = torch.nn.Softmax()
-
-    def get_output(self, input_):
-        return self.sm(self.actions), self
-
-    def get_params(self):
-        return self.actions
-
-    def discretize(self):
-        return ConstantLeaf(torch.argmax(self.actions).detach().numpy())
-
-    def __repr__(self):
-        return str(self.sm(self.actions))
-
-    def __str__(self):
-        return repr(self)
-=======
-    pass
-#     """A Leaf that implements PPO for discrete action spaces"""
-
-#     def __init__(self, n_actions):
-#         """
-#         Initializes the leaf
-
-#         :n_actions: The number of actions that the leaf can perform
-#         """
-#         Leaf.__init__(self)
-
-#         self._n_actions = n_actions
-#         self.actions = torch.rand(n_actions, requires_grad=True)
-#         self.sm = torch.nn.Softmax()
-
-#     def get_output(self, input_):
-#         return self.sm(self.actions), self
-
-#     def get_params(self):
-#         return self.actions
-
-#     def discretize(self):
-#         return ConstantLeaf(torch.argmax(self.actions).detach().numpy())
-
-#     def __repr__(self):
-#         return str(self.sm(self.actions))
-
-#     def __str__(self):
-#         return repr(self)
->>>>>>> aca3e01 (merged from private repo)
-
-
-class PPOLeafFactory():
-    """
-    A Factory for PPO leaves
-    """
-
-    def __init__(self, n_actions):
-        self._n = n_actions
-
-    def create(self):
-        return PPOLeaf(self._n)
-
-    def get_trainable_parameters(self):
-        return []

@@ -7,20 +7,10 @@ import numpy as np
 import re
 import os
 import string
-<<<<<<< HEAD
-from utils.print_outputs import *
 from copy import deepcopy
 from .common import OptMetaClass
 from decisiontrees import Leaf, Condition
 from operator import gt, lt, add, sub, mul
-from processing_element import ProcessingElementFactory, PEFMetaClass
-=======
-from copy import deepcopy
-from .common import OptMetaClass
-from decisiontrees import Leaf, Condition, OrthogonalCondition
-from operator import gt, lt, add, sub, mul
-from util_processing_elements.processing_element import ProcessingElementFactory, PEFMetaClass
->>>>>>> aca3e01 (merged from private repo)
 
 
 
@@ -45,15 +35,7 @@ class GPVar(GPExpr):
         self._index = index
 
     def get_output(self, input_):
-<<<<<<< HEAD
-        if type(input_) == dict:
-            output = list(input_.values())[self._index]
-        else:
-            output = input_[self._index]
-        return output
-=======
         return input_[self._index]
->>>>>>> aca3e01 (merged from private repo)
 
     def __repr__(self):
         return f"input_[{self._index}]"
@@ -116,12 +98,8 @@ class GPConst(GPExpr):
 
     def __str__(self):
         return repr(self)
-<<<<<<< HEAD
 
 
-=======
-    
->>>>>>> aca3e01 (merged from private repo)
 class GPNodeCondition:
     """
     A condition
@@ -179,19 +157,7 @@ class GPNodeCondition:
         self._then.empty_buffers()
         self._else.empty_buffers()
 
-<<<<<<< HEAD
 
-=======
-class GPNodeOrthogonalCondition(OrthogonalCondition, GPNodeCondition):
-    def __init__(self, feature_idx, split_value, left=None, right=None):
-        super().__init__(feature_idx, split_value, left, right)
-        
-    def get_output(self, input_):
-        return super().get_output(input_)
-    
-    def create_from_params(self, params):
-        return OrthogonalCondition(params[0], params[1])
->>>>>>> aca3e01 (merged from private repo)
 class GPNodeIf(Condition):
     def __init__(self, condition, then, else_):
         self._condition = condition
@@ -231,12 +197,6 @@ class GPNodeIf(Condition):
     def empty_buffers(self):
         self._then.empty_buffers()
         self._else.empty_buffers()
-<<<<<<< HEAD
-    
-    def type(self):
-        pass
-=======
->>>>>>> aca3e01 (merged from private repo)
 
     def copy(self):
         """
@@ -331,13 +291,7 @@ class IndividualGP(Individual):
         
     
     def copy(self):
-<<<<<<< HEAD
-        return IndividualGP(self._genes, self._padding, self._fitness, self._parents,np.copy(self._const),self._const_len)
-    def deep_copy(self):
-        return IndividualGP(deepcopy(self._genes), self._padding, self._fitness, self._parents,deepcopy(self._const),self._const_len)
-=======
         return IndividualGP(self._genes.copy(), self._padding, self._fitness, self._parents,np.copy(self._const),self._const_len)
->>>>>>> aca3e01 (merged from private repo)
 
     def get_genes_const_nested(self,expr,const_temp):
         fringe = [expr]
@@ -397,10 +351,3 @@ class IndividualGP(Individual):
                 i = self.genes_to_const_nested(cond.get_right(),i)
                 fringe.append(cur.get_then())
                 fringe.append(cur.get_else())
-<<<<<<< HEAD
-                
-    def get_output(self, _input):
-        return self._genes.get_output(_input)
-    
-=======
->>>>>>> aca3e01 (merged from private repo)
