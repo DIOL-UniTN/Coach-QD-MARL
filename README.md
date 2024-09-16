@@ -56,7 +56,11 @@ The project is structured as follows:
     3. [config](/src/config): Contains the configuration files used in the project, such as the configuration of the environment, the algorithm, and the agents and most importantly the configuration of Map-Elites archive
     4. [decisiontrees](/src/decisiontrees): Contains the classes for create and manage the Decision Trees, RL-Decision Trees, Leaves and the Conditions on the Trees Nodes
     5. [utils](/src/utils): Contains the utility functions used in the project
-2. [logs](/logs): Contains the logs files generated during the execution of the project
+    6. [marl_qd_launcher.py](/src/marl_qd_launcher.py): The main script to launch the project
+    7. [experiment_launcher.py](/src/experiment_launcher.py): The script that contains experiments classes and types
+    8. [test_team.py](/src/test_team.py): The script that runs the test of the teams generated during the training executions
+    9. [eval_runs.py](/src/eval_runs.py): The script that generate all the plots and the data files over the training and test executions
+2. [logs](/logs): Contains the logs files generated during the training and test executions of the project, as well as the results of the experiments and the final teams and agents generated
 3. [hpc_scripts](/hpc_scripts): Contains the scripts used to run the project on the High-Performance Computing (HPC) cluster
 
 ## Results
