@@ -3,14 +3,11 @@ echo "Hello! Here you can set environment and run codes"
 echo "Please enter an integer to select an option:"
 echo "[1]. Activate environment"
 echo "[2]. Deactivate environment"
-echo "[3]. Run code dts4marl"
-echo "[4]. Run code marldts"
-echo "[5]. Run code qd_marl"
-echo "[6]. Run code qd_marl in debug mode"
-echo "[7]. Run code qd_marl without sets"
-echo "[8]. Run code qd_marl with reduced sizes"
-echo "[9]. Run the qd_marl with a team per individual, test size"
-echo "[10]. Exit"
+echo "[3]. Run code GA baseline"
+echo "[4]. Run code qd_marl with fully coevolutionary"
+echo "[5]. Run code qd_marl with a single ME"
+echo "[6]. Run test final team with render mode"
+echo "[7]. Plot evaluations"
 read option
 if [ $option -eq 1 ]
 then
@@ -23,36 +20,23 @@ then
 elif [ $option -eq 3 ]
 then
     echo "Running code..."
-    python3 src/base/dts4marl/launcher.py src/base/dts4marl/battlefield.json 4
-
+    python3 src/marl_qd_launcher.py src/configs/local/ga_fc/battlefield.json 4
 elif [ $option -eq 4 ]
-then
-    echo "Running code..."
-    python3 src/base/marl_dts/src/experiment_launchers/pz_advpursuit_reduced_obs_shared_launcher.py src/base/marl_dts/src/configs/magent_advpursuit_single_team.json 1
+then 
+    echo "Running code MARL-QD with a ME per team.."
+    python3 src/marl_qd_launcher.py src/configs/local/fully_coevolutionary/battlefield.json 4
 elif [ $option -eq 5 ]
 then
-    echo "Running code..."
-    python3 src/QD_MARL/marl_qd_launcher.py src/QD_MARL/configs/local/battlefield.json 4
+    echo "Running code MARL-QD with a single ME..."
+    python3 src/marl_qd_launcher.py src/configs/local/single_me/battlefield.json 4
 elif [ $option -eq 6 ]
 then
-    echo "Running code in DEBUG MODE..."
-    python3 src/QD_MARL/marl_qd_launcher.py src/QD_MARL/configs/local/battlefield_test.json 4 --debug
+    echo "Running test final team.."
+    python3 src/test_team.py src/configs/test_team.json 4
 elif [ $option -eq 7 ]
 then
-    echo "Running test environment..."
-    python3 src/QD_MARL/marl_qd_launcher_no_sets.py src/QD_MARL/configs/local/battlefield_test.json  4 
-elif [ $option -eq 8 ]
-then
-    echo "Running test environment..."
-    python3 src/QD_MARL/marl_qd_launcher.py src/QD_MARL/configs/local/battlefield_test.json  4 
-elif [ $option -eq 9 ]
-then
-    echo "Running test for team per individual..."
-    python3 src/QD_MARL/marl_qd_per_individual.py src/QD_MARL/configs/local/battlefield_test_per_ind.json  4
-elif [ $option -eq 10 ]
-then
-    echo "Exiting..."
-    exit
+    echo "Plot evaluations.."
+    python3 src/eval_runs.py 4
 else
     echo "Invalid option"
     echo "Exiting..."

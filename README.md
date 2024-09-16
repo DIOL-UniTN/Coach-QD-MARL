@@ -48,15 +48,6 @@ chmod +x script.sh
 ```
 The script will pop different running options, choose the desired option and the project will start running.
 
-## Current project status
-The project is still in development. The current status of the project is to develop the multi-agent reinforcement learning algorithm that uses quality diversity to create the sets of agents to solve a given multi agent task. In particualr the test environment is the [Battlefield Environemnt](https://magent2.farama.org/environments/battlefield/), from [MAgent2](https://magent2.farama.org/index.html) framework mantained by [Farama Foundation](https://farama.org/).
-This are examples of the behavior of the agents at the current stage of the project:
-
-| Team at Training Generation 0 | Team at Training Generation 15 |
-| ------------- | ------------- |
-| ![Alt text](figures/Esercito_Gen_0.gif "Team at Training Generation 0")  | ![Alt text](figures/Esercito_Gen_15.gif "Team at Training Generation 15")  |
-
-
 ## Structure
 The project is structured as follows:
 1. [src](/src): Contains the source code of the project
@@ -67,6 +58,14 @@ The project is structured as follows:
     5. [utils](/src/utils): Contains the utility functions used in the project
 2. [logs](/logs): Contains the logs files generated during the execution of the project
 3. [hpc_scripts](/hpc_scripts): Contains the scripts used to run the project on the High-Performance Computing (HPC) cluster
+
+## Results
+All the results and executions of the project are stored in the [logs](/logs) folder. 
+The results of out proposal are summerize in the following plots:
+
+| Fitness trends during training | MAP-ELites heatmaps of our approach| Final teams reward comparison between approaches |
+| ------------- | ------------- | ------------- |
+| ![Alt text](figures/no-inj-me_single_me_fitness.png "Singular MAP-Elites fitness tredns")  | ![Alt text](figures/no_inj-me_single_me-coach-me_heatmaps.png "Our approach htemap")  | ![Alt text](figures/no-inj-me_single_me-coach-me_reward.png "Final reward comparison")  |
 
 ## Papers and References
 In [references](/references) there is a comprehensive list of references of the studied papers to complete the project.

@@ -1,0 +1,54 @@
+{
+    "grammar": {
+        "root": ["condition", "leaf"],
+        "input_index": {
+            "start": 0,
+            "stop": 34,
+            "step": 1,
+            "dtype": "int"
+        },
+        "float": {
+            "start": 0.1,
+            "stop": 1,
+            "step": 0.1,
+            "dtype": "float"
+        }
+    },
+    "conditions": {
+        "type": "orthogonal"
+    },
+    "leaves": {
+        "params": {
+            "n_actions": 21,
+            "learning_rate": null
+        },
+        "decorators": [
+            [
+                "RandomInit",
+                {
+                    "low": -1,
+                    "high": 1
+                }
+
+            ],
+            [
+                "EpsilonGreedy",
+                {
+                    "epsilon": 1,
+                    "decay": 0.99,
+                    "min_epsilon": 0.05
+                }
+            ],
+            [
+                "NoBuffers",
+                {}
+            ]
+        ]
+    },
+    "training": {
+        "gamma": 0.9
+    },
+    "individual_genes_injected": [0,22,3,0,23,3,0,5,4,0,24,3,0,7,4,0,25,3,0,8,4,1,0,10,4,0,30,5,1,0,20,2,1,1,1,0,32,5,1,0,21,2,1,1,1,0,29,5,1,0,18,2,1,1,1,0,27,5,1,0,17,2,1,1,1],
+    "save_dir": "src/configs"
+}
+
