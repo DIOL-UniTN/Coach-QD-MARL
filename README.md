@@ -65,7 +65,7 @@ The results of out proposal are summerize in the following plots:
 
 | Fitness trends during training | MAP-ELites heatmaps of our approach| Final teams reward comparison between approaches |
 | ------------- | ------------- | ------------- |
-| ![Alt text](figures/no-inj-me_single_me_fitness.png "Singular MAP-Elites fitness tredns")  | ![Alt text](figures/no_inj-me_single_me-coach-me_heatmaps.png "Our approach htemap")  | ![Alt text](figures/no-inj-me_single_me-coach-me_reward.png "Final reward comparison")  |
+| ![Alt text](figures/no-inj-me_single_me_fitness.png "Singular MAP-Elites fitness tredns")  | ![Alt text](figures/no_inj-me_single_me-coach-me_heatmaps.png "Our approach htemap")  | ![Alt text](figures/no-inj-Reward_final.png "Final reward comparison")  |
 
 ## Papers and References
 In [references](/references) there is a comprehensive list of references of the studied papers to complete the project.
