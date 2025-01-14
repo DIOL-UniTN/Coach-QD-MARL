@@ -1,4 +1,4 @@
-# Multi-Agent Reinforcement Learning with Quality Diversity
+# Coach-Based Quality-Diversity for Multi-Agent Reinforcement Learning
 The aim of the project is to develop a multi-agent reinforcement learning algorithm that uses quality diversity to create the sets of agents to solve a given multi agent task. The project is part of the master thesis developed by [Nielsen Erik](github.com/NielsenErik) at the University of Trento.
 This repo contains the code and relevant sources used to developed the thesis project. 
 The project is supervised by Giovanni Iacca and Andrea Ferigo from University of Trento and follows their current researches.
