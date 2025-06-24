@@ -81,6 +81,7 @@ In [src](/src) are stored all the scripts developed during the project. The prod
 
 ## Citing
 If you like this project, we would appreciate it if you starred the repository in order to help us increase its visibility. Furthermore, if you find the framework useful in your research, we would be grateful if you could cite our [publication](https://link.springer.com/chapter/10.1007/978-3-031-90062-4_25) using the following bibtex entry:
+```bib
 @inproceedings{nielsen2025coach,
   title={A Coach-Based Quality-Diversity Approach for Multi-agent Interpretable Reinforcement Learning},
   author={Nielsen, Erik and Ferigo, Andrea and Iacca, Giovanni},
@@ -89,3 +90,4 @@ If you like this project, we would appreciate it if you starred the repository i
   year={2025},
   organization={Springer}
 }
+```
