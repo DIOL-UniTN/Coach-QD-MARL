@@ -78,3 +78,14 @@ In [references](/references) there is a comprehensive list of references of the 
 In [src](/src) are stored all the scripts developed during the project. The produced scripts are based on the following papers by Giovanni Iacca, Marco Crespi, Andrea Ferigo, Leonardo Lucio Custode:
 - [A Population-Based Approach for Multi-Agent Interpretable Reinforcement Learning](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4467882)
 - [Quality Diversity Evolutionary Learning of Decision Trees](https://arxiv.org/abs/2208.12758)
+
+##
+If you like this project, we would appreciate it if you starred the repository in order to help us increase its visibility. Furthermore, if you find the framework useful in your research, we would be grateful if you could cite our [publication](https://link.springer.com/chapter/10.1007/978-3-031-90062-4_25) using the following bibtex entry:
+@inproceedings{nielsen2025coach,
+  title={A Coach-Based Quality-Diversity Approach for Multi-agent Interpretable Reinforcement Learning},
+  author={Nielsen, Erik and Ferigo, Andrea and Iacca, Giovanni},
+  booktitle={International Conference on the Applications of Evolutionary Computation (Part of EvoStar)},
+  pages={402--418},
+  year={2025},
+  organization={Springer}
+}
